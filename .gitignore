@@ -25,13 +25,11 @@ core.*
 
 /Antenna_Performance_Metric/AraOut*
 
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/*.txt
+/*.txt
 
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Antenna_Performance_Metric/*.txt
+/Antenna_Performance_Metric/*.txt
 
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Database/*.txt
-
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/*.txt
+/Database/*.txt
 
 /AraSim
 
@@ -47,18 +45,14 @@ core.*
 
 /Run_Outputs/
 
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/saveStates/
-
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/scriptEOFiles/
+/saveStates/
 
 gitpush.sh
 
 gitpushforce.sh
 
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Xmacros/*.png
+/Xmacros/*.png
 
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Generation_Data/datasize.txt
+/Xmacros/output.xmacro
 
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Xmacros/output.xmacro
-
-/BiconeEvolution/current_antenna_evo_build/XF_Loop/Xmacros/simulation_PEC.xmacro
+/Xmacros/simulation_PEC.xmacro
