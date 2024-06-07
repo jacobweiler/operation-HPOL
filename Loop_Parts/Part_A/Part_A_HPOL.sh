@@ -14,11 +14,10 @@
 #
 #######################################################################################################################################
 #variables
-gen=$1
-NPOP=$2
-WorkingDir=$3
-RunName=$4
-GeoFactor=$5
+WorkingDir=$1
+RunName=$2
+gen=$3
+source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 #chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/
 

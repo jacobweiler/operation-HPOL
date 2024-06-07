@@ -94,20 +94,16 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part A ##
     if [ $state -eq 1 ]; then
         if [ $antenna == "VPOL" ]; then
-            if [ $CURVED -eq 0 ]; then # Straight
-                ./Loop_Parts/Part_A/Part_A_With_Switches.sh $gen $NPOP $NSECTIONS $WorkingDir $RunName $GeoFactor $RADIUS $LENGTH $ANGLE $SEPARATION 
-            else # Curved
-                ./Loop_Parts/Part_A/Part_A_Curved.sh $gen $NPOP $NSECTIONS $WorkingDir $RunName $GeoFactor $RADIUS $LENGTH $A $B $SEPARATION $NSECTIONS $REPRODUCTION $CROSSOVER $MUTATION $SIGMA $ROULETTE $TOURNAMENT $RANK $ELITE
-            fi
+            ./Loop_Parts/Part_A/Part_A_VPOL.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_A/Part_A_HPOL.sh $gen $NPOP $NSECTIONS $WorkingDir $RunName $GeoFactor $RADIUS $LENGTH $ANGLE $SEPARATION 
-        else # Where both will go
+            ./Loop_Parts/Part_A/Part_A_HPOL.sh $WorkingDir $RunName $gen
+        else
             echo "ERROR: Antenna type not recognized"
             exit 1
         fi
         state=2
 
-        ./SaveState_Prototype.sh $gen $state $RunName $indiv
+        ./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
     fi
 
 	## Part B1 ##
@@ -143,7 +139,7 @@ for gen in `seq $InitialGen $TotalGens`; do
         fi
 		state=3
 
-		./SaveState_Prototype.sh $gen $state $RunName $indiv
+		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
 	fi
 		
 	## Part B2 ##
@@ -162,7 +158,7 @@ for gen in `seq $InitialGen $TotalGens`; do
         fi
 		state=4
 
-		./SaveState_Prototype.sh $gen $state $RunName $indiv
+		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
 	fi
 
 	## Part C ##
@@ -171,13 +167,13 @@ for gen in `seq $InitialGen $TotalGens`; do
         ./Loop_Parts/Part_C/Part_C.sh $NPOP $WorkingDir $RunName $gen $indiv
 		state=5
 
-		./SaveState_Prototype.sh $gen $state $RunName $indiv
+		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
 	fi
 
 	## Part D1 ##
 	if [ $state -eq 5 ]; then
         if [ $antenna == "VPOL" ]; then
-		    ./Loop_Parts/Part_D/Part_D1_Array.sh $gen $NPOP $WorkingDir $AraSimExec $exp $NNT $RunName $Seeds $DEBUG_MODE
+            ./Loop_Parts/Part_D/Part_D1_Array.sh $gen $NPOP $WorkingDir $AraSimExec $exp $NNT $RunName $Seeds $DEBUG_MODE
         elif [ $antenna == "HPOL" ]; then
             ./Loop_Parts/Part_D/Part_D1_HPOL.sh
         else
@@ -186,7 +182,7 @@ for gen in `seq $InitialGen $TotalGens`; do
         fi
 		state=6
 
-		./SaveState_Prototype.sh $gen $state $RunName $indiv
+		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
 	fi
 
 	## Part D2 ##
@@ -201,7 +197,7 @@ for gen in `seq $InitialGen $TotalGens`; do
         fi
 		state=7
 
-		./SaveState_Prototype.sh $gen $state $RunName $indiv
+		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
 	fi
 
 	## Part E ##
@@ -220,7 +216,7 @@ for gen in `seq $InitialGen $TotalGens`; do
         fi
 		state=8
 
-		./SaveState_Prototype.sh $gen $state $RunName $indiv 
+		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv 
 
 	fi
 
@@ -240,7 +236,7 @@ for gen in `seq $InitialGen $TotalGens`; do
         fi
 		state=1
 
-		./SaveState_Prototype.sh $gen $state $RunName $indiv
+		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
 	fi
 done
 
