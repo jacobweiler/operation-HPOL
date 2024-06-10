@@ -1,4 +1,4 @@
-
+#!/bin/bash
 ########  XF output conversion code (C)  ###########################################################################################
 #
 #
@@ -7,11 +7,10 @@
 #
 ####################################################################################################################################
 #variables
-NPOP=$1
-WorkingDir=$2
-RunName=$3
-gen=$4
-indiv=$5
+WorkingDir=$1
+RunName=$2
+gen=$3
+source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 #chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/
 

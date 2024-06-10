@@ -1,14 +1,11 @@
+#!/bin/bash
 #This is a version of Part_D2 that uses multiple Seeds for an individual run of AraSim
 
 #variables
-gen=$1
-NPOP=$2
-WorkingDir=$3
-RunName=$4
-Seeds=$5
-AraSimExec=$6
-
-#chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/
+WorkingDir=$1
+RunName=$2
+gen=$3
+source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 cd $WorkingDir/Run_Outputs/$RunName/AraSimFlags/
 #cd $WorkingDir/Run_Outputs/AraSimFlags/

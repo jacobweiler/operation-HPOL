@@ -26,10 +26,6 @@ mkdir -m777 $WorkingDir/saveStates 2> /dev/null
 
 echo "Setup file is ${setupfile}"
 
-XmacrosDir=$WorkingDir/Xmacros 
-XFProj=$WorkingDir/Run_Outputs/${RunName}/${RunName}.xf
-AraSimExec="/fs/ess/PAS1960/BiconeEvolutionOSC/AraSim" 
-
 source $WorkingDir/Environments/araenv.sh
 source $WorkingDir/Environments/new_root_setup.sh
 source /cvmfs/ara.opensciencegrid.org/trunk/centos7/setup.sh
@@ -51,9 +47,11 @@ if ! [ -f "saveStates/${saveStateFile}" ]; then
 	cp $WorkingDir/$setupfile $WorkingDir/RunData/$RunName/setup.sh
 	cp $WorkingDir/RunData/$RunName/setup.sh $WorkingDir/RunData/$RunName/settings.py
 	XFProj=$WorkingDir/RunData/${RunName}/${RunName}.xf
-	XmacrosDir=$WorkingDir/XF
+	XmacrosDir=$WorkingDir/Xmacros 
+    AraSimExec="/fs/ess/PAS1960/BiconeEvolutionOSC/AraSim" 
 	echo "XFProj=${XFProj}" >> $WorkingDir/RunData/$RunName/setup.sh
 	echo "XmacrosDir=${XmacrosDir}" >> $WorkingDir/RunData/$RunName/setup.sh
+    echo "AraSimExec=${AraSimExec}" >> $WorkingDir/RunData/$RunName/setup.sh
 else
 	source $RunDir/setup.sh
 fi
@@ -69,7 +67,7 @@ echo "${indiv}"
 for gen in `seq $InitialGen $TotalGens`; do
 	if [[ $gen -eq 0 && $state -eq 0 ]]; then # New Run
         if [ $manual_override -eq 0 ]; then
-	    	read -p "Starting generation ${gen} at location ${state}. Press any key to continue... " -n1 -s
+            read -p "Starting generation ${gen} at location ${state}. Press any key to continue... " -n1 -s
 		fi
 		# Make the run name directory
 		mkdir -m777 $WorkingDir/Run_Outputs/$RunName
@@ -109,31 +107,10 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part B1 ##
 	if [ $state -eq 2 ]; then
         if [ $antenna == "VPOL"]; then
-            if [ $CURVED -eq 0 ]; then
-                if [ $NSECTIONS -eq 1 ]; then
-                    if [ $database_flag -eq 0 ]; then
-                        ./Loop_Parts/Part_B/Part_B_GPU_job1.sh $indiv $gen $NPOP $WorkingDir $RunName $XmacrosDir $XFProj $GeoFactor $num_keys
-
-                    else
-                        ./Loop_Parts/Part_B/Part_B_GPU_job1_database.sh $indiv $gen $NPOP $WorkingDir $RunName $XmacrosDir $XFProj $GeoFactor $num_keys
-
-                    fi
-
-                else
-                    if [ $database_flag -eq 0 ]; then
-                        ./Loop_Parts/Part_B/Part_B_job1_sep.sh $indiv $gen $NPOP $WorkingDir $RunName $XmacrosDir $XFProj $GeoFactor $num_keys 
-
-                    else
-                        ./Loop_Parts/Part_B/Part_B_GPU_job1_asym_database.sh $indiv $gen $NPOP $WorkingDir $RunName $XmacrosDir $XFProj $GeoFactor $num_keys
-
-                    fi
-                fi
-            else
-                ./Loop_Parts/Part_B/Part_B_Curved_1.sh $indiv $gen $NPOP $WorkingDir $RunName $XmacrosDir $XFProj $GeoFactor $num_keys
-            fi
+            ./Loop_Parts/Part_B/Part_B_VPOL.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_B/Part_B_HPOL.sh
-        else # Both 
+            ./Loop_Parts/Part_B/Part_B_HPOL.sh $WorkingDir $RunName $gen
+        else
             echo "ERROR: Antenna type not recognized"
             exit 1
         fi
@@ -145,13 +122,9 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part B2 ##
 	if [ $state -eq 3 ]; then
         if [ $antenna == "VPOL" ]; then
-            if [ $database_flag -eq 0 ]; then
-            ./Loop_Parts/Part_B/Part_B_GPU_job2_asym_array.sh $indiv $gen $NPOP $WorkingDir $RunName $XmacrosDir $XFProj $GeoFactor $num_keys $NSECTIONS
-            else
-            ./Loop_Parts/Part_B/Part_B_GPU_job2_asym_database.sh $indiv $gen $NPOP $WorkingDir $RunName $XmacrosDir $XFProj $GeoFactor $num_keys $NSECTIONS
-            fi
+            ./Loop_Parts/Part_B/Part_B2_VPOL.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_B/Part_B_HPOL2.sh # do we need this??
+            ./Loop_Parts/Part_B/Part_B2_HPOL.sh $WorkingDir $RunName $gen
         else
             echo "ERROR: Antenna type not recognized"
             exit 1
@@ -164,7 +137,7 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part C ##
 	if [ $state -eq 4 ]; then
         indiv=1
-        ./Loop_Parts/Part_C/Part_C.sh $NPOP $WorkingDir $RunName $gen $indiv
+        ./Loop_Parts/Part_C/Part_C.sh $WorkingDir $RunName $gen
 		state=5
 
 		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
@@ -173,9 +146,9 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part D1 ##
 	if [ $state -eq 5 ]; then
         if [ $antenna == "VPOL" ]; then
-            ./Loop_Parts/Part_D/Part_D1_Array.sh $gen $NPOP $WorkingDir $AraSimExec $exp $NNT $RunName $Seeds $DEBUG_MODE
+            ./Loop_Parts/Part_D/Part_D1_Array.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_D/Part_D1_HPOL.sh
+            ./Loop_Parts/Part_D/Part_D1_HPOL.sh $WorkingDir $RunName $gen
         else
             echo "ERROR: Antenna type not recognized"
             exit 1
@@ -188,9 +161,9 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part D2 ##
 	if [ $state -eq 6 ]; then
         if [ $antenna == "VPOL" ]; then
-            ./Loop_Parts/Part_D/Part_D2_Array.sh $gen $NPOP $WorkingDir $RunName $Seeds $AraSimExec
+            ./Loop_Parts/Part_D/Part_D2_Array.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_D/Part_D2_HPOL.sh
+            ./Loop_Parts/Part_D/Part_D2_HPOL.sh $WorkingDir $RunName $gen
         else
             echo "ERROR: Antenna type not recognized"
             exit 1
@@ -203,13 +176,9 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part E ##
 	if [ $state -eq 7 ]; then
         if [ $antenna == "VPOL" ]; then
-            if [ $CURVED -eq 0 ]; then # Straight Sides
-                ./Loop_Parts/Part_E/Part_E_Asym.sh $gen $NPOP $WorkingDir $RunName $ScaleFactor $indiv $Seeds $GeoFactor $AraSimExec $XFProj $NSECTIONS $SEPARATION
-            else # Curved Sides
-                ./Loop_Parts/Part_E/Part_E_Curved.sh $gen $NPOP $WorkingDir $RunName $ScaleFactor $indiv $Seeds $GeoFactor $AraSimExec $XFProj $NSECTIONS $SEPARATION $CURVED
-            fi
+            ./Loop_Parts/Part_E/Part_E_VPOL.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_E/Part_E_HPOL.sh
+            ./Loop_Parts/Part_E/Part_E_HPOL.sh $WorkingDir $RunName $gen
         else
             echo "ERROR: Antenna type not recognized"
             exit 1
@@ -223,13 +192,9 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part F ##
 	if [ $state -eq 8 ]; then
         if [ $antenna == "VPOL" ]; then
-            if [ $CURVED -eq 0 ]; then
-                ./Loop_Parts/Part_F/Part_F_asym.sh $NPOP $WorkingDir $RunName $gen $Seeds $NSECTIONS
-            else
-                ./Loop_Parts/Part_F/Part_F_Curved.sh $NPOP $WorkingDir $RunName $gen $Seeds $NSECTIONS
-            fi
+            ./Loop_Parts/Part_F/Part_F_VPOL.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_F/Part_F.sh
+            ./Loop_Parts/Part_F/Part_F_HPOL.sh $WorkingDir $RunName $gen
         else
             echo "ERROR: Antenna type not recognized"
             exit 1
@@ -251,5 +216,3 @@ mv runData.csv Antenna_Performance_Metric
 ########################################################################################################################
 cd "$WorkingDir"
 mv AraOut_ActualBicone.txt "$WorkingDir"/Run_Outputs/$RunName/AraOut_ActualBicone.txt
-
-

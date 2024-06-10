@@ -1,4 +1,4 @@
-#This is a version of Part_D1 that uses multiple Seeds for a version of AraSim
+#!/bin/bash
 ########  AraSim Execution (D)  ################################################################################################################## 
 #
 #
@@ -12,16 +12,11 @@
 ################################################################################################################################################## 
 
 #variables
-gen=$1
-NPOP=$2
-WorkingDir=$3
-AraSimExec=$4
-exp=$5
-NNT=$6
-RunName=$7
-Seeds=$8
-DEBUG_MODE=$9
-ParallelAra=${10}
+WorkingDir=$1
+RunName=$2
+gen=$3
+source $WorkingDir/Run_Outputs/$RunName/setup.sh
+
 SpecificSeed=32000
 
 #chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/
