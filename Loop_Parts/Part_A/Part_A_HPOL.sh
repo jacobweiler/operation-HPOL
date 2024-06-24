@@ -19,30 +19,20 @@ RunName=$2
 gen=$3
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
-#chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/
-
-# NOTE: roulette_algorithm.exe should be compiled from roulette_algorithm_cut_test.cpp
-# (It tells you at the top of the cpp file how to compile)
-
 cd $WorkingDir
+
 if [ $gen -eq 0 ]
 then
-	g++ -std=c++11 GA/Algorithms/roulette_algorithm.cpp -o GA/Executables/roulette_algorithm.exe	
-	./GA/Executables/roulette_algorithm.exe start $NPOP $GeoFactor 
-
-else
-	g++ -std=c++11 GA/Algorithms/roulette_algorithm.cpp -o GA/Executables/roulette_algorithm.exe
-	./GA/Executables/roulette_algorithm.exe cont $NPOP $GeoFactor
+    ./Loop_Parts/Part_A/MakeSettings.sh $WorkingDir $RunName
 fi
 
-cp Generation_Data/generationDNA.csv Run_Outputs/$RunName/${gen}_generationDNA.csv
-mv Generation_Data/generators.csv Run_Outputs/$RunName/${gen}_generators.csv
-if [ $gen -gt 0 ]
+python Shared-Code/PyGA/Run_GA.py $RunName $WorkingDir $gen
+
+# check the exit status
+if [ $? -eq 0 ]
 then
-        mv Generation_Data/parents.csv Run_Outputs/$RunName/${gen}_parents.csv
-        mv Generation_Data/genes.csv Run_Outputs/$RunName/${gen}_genes.csv
-        mv Generation_Data/mutations.csv Run_Outputs/$RunName/${gen}_mutations.csv
+    echo "GA ran successfully"
+else
+    echo "GA failed"
+    exit 1
 fi
-
-
-#chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/

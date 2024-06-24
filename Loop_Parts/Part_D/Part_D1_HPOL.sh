@@ -16,10 +16,11 @@ WorkingDir=$1
 RunName=$2
 gen=$3
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
+source /fs/ess/PAS1960/BiconeEvolutionOSC/new_root/new_root_setup.sh
+source /cvmfs/ara.opensciencegrid.org/trunk/centos7/setup.sh
+
 
 SpecificSeed=32000
-
-#chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/
 
 cd $WorkingDir
 
@@ -43,41 +44,15 @@ echo
 
 cd "$AraSimExec"
 
-# Let's make sure we're sourcing the right setup file
-source /fs/ess/PAS1960/BiconeEvolutionOSC/new_root/new_root_setup.sh
-source /cvmfs/ara.opensciencegrid.org/trunk/centos7/setup.sh
-
-if [ $ParallelAra -eq 1 ]
-then
-	job_name=AraSimCall_ParallelArray.sh
-else
-	job_name=AraSimCall_Array.sh
-fi
+job_name=ara_hpol_paralleljob.sh
 
 
 # If we're doing a real run, we only need to change the setup .txt file once
 # Although we need to be carefuly, since maybe eventually we'll want to run multiple times at once?
-if [ $DEBUG_MODE -eq 0 ]
-then
+if [ $DEBUG_MODE -eq 0 ]; then
 
-############################
-: << END 
-	This next line replaces the number of neutrinos thrown in our setup.txt AraSim file with ${NNT}.
-	setup_dummy.txt is a copy of setup.txt that has NNU=num_nnu. 
-	The below command finds every instance of num_nnu in setup_dummy.txt and replaces it with 
-		${NNT}. It then pipes this information into setup.txt. 
-	Command works the following way: 
-	sed -e "s/<old word>/<new word>/" path/to/filewiththisword.txt > path/to/fileWeAreOverwriting.txt  
-END
-############################
+	sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" ${AraSimExec}/setup_dummy_hpol.txt > $TMPDIR/setup.txt
 
-	sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" ${AraSimExec}/setup_dummy_araseed.txt > ${AraSimExec}/setup.txt
-
-	# Now we just need to run AraSim from the setup file
-	# Instead of a for loop, we can use a single command
-	# We need the jobs to go from 1 to NPOP*NSEEDS
-	# For the job name, make it the RunName
-	# This will help for directing the output/error files
 	cd $WorkingDir
 	numJobs=$((NPOP*Seeds))
 	maxJobs=252 # for now, maybe make this a variable in the main loop script
@@ -98,8 +73,6 @@ else
 		# but I'm commenting it out for testing purposes
 		SpecificSeed=$(expr $j + 32000)
 		#SpecificSeed=32000
-
-		sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" ${AraSimExec}/setup_dummy_araseed.txt > ${AraSimExec}/setup.txt
 
 	
 		#We will want to call a job here to do what this AraSim call is doing so it can run in parallel

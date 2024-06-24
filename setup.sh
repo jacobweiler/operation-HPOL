@@ -12,6 +12,7 @@ database_flag=0			## 0 if not using the database, 1 if using the database
 DEBUG_MODE=0			## 1 for testing (ex: send specific seeds), 0 for real runs
 ########### ANTENNA PARAMS ##########################################################################################
 antenna="VPOL"             ## This is the type of antenna we are evolving. Options are "VPOL" or "HPOL" 
+############## VPOL PARAMS ##########################################################################################
 RADIUS=0			## If 1, radius is asymmetric. If 0, radius is symmetric		
 LENGTH=0			## If 1, length is asymmetric. If 0, length is symmetric
 ANGLE=0				## If 1, angle is asymmetric. If 0, angle is symmetric
@@ -20,6 +21,9 @@ A=0				## If 1, A is asymmetric
 B=0				## If 1, B is asymmetric
 SEPARATION=0    		## If 1, separation evolves. If 0, separation is constant
 NSECTIONS=1 			## The number of chromosomes
+############## HPOL PARAMS #########################################################################################
+num_plates=4             ## The number of plates in the HPOL antenna
+# Not totally sure how twe should add this in based on how VPOL is implemented
 ############ GA #####################################################################################################
 REPRODUCTION=3			## Number (not fraction!) of individuals formed through reproduction
 CROSSOVER=36			## Number (not fraction!) of individuals formed through crossover

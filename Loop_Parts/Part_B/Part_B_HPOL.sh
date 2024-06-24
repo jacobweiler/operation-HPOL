@@ -67,7 +67,7 @@ function printProgressBar () {
 
 if [ $SingleBatch -eq 1 ]
 then
-    XFCount=$XFkeys
+    XFCount=$num_keys
 else
     XFCount=$NPOP
 fi
@@ -89,10 +89,7 @@ then
     fi
     mkdir -m775 $WorkingDir/RunData/$RunName/uan_files/${gen}_uan_files 2> /dev/null
     mkdir -m775 $WorkingDir/RunData/$RunName/detector_images/$gen
-
-    python freqmaker.py $FreqStart $FreqStop $FreqStep $WorkingDir/RunData/$RunName/XMacros
-    python DictToJson.py $NPOP $WorkingDir $RunName $gen
-
+    
     # Run the simulation xmacro
     rm -f $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
     touch $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
@@ -105,11 +102,8 @@ then
     echo "var gen = \"$gen\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
     echo "var WorkingDir = \"$WorkingDir\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
     echo "var RunDir = \"$WorkingDir/RunData/$RunName\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    echo "var gaoutpath = RunDir + \"/GA_Outputs/\" + gen + \"_GAOutput.json\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
     echo "var units = \" $XFunits\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro ## might need to add space in beginning XF statement if error
-    echo "var isHollow = $isHollow;" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    echo "var HollowThickness = $HollowThickness;" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    echo "var endcapremoval = $endcapremoval;" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
+    # ADD IN HPOL SPECIFIC VARIABLES HERE
 
     # if gen equals 0
     if [ $gen -eq 0 ]
@@ -117,7 +111,8 @@ then
         echo "App.saveCurrentProjectAs(\"$WorkingDir/RunData/$RunName/$RunName\");" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
     fi
 
-    cat $XmacrosDir/skeleton.js >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
+
+    cat $XmacrosDir/HPOL_skeleton.js >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
 
     xfdtd $XFProj --execute-macro-script=$WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro || true
 
@@ -127,9 +122,9 @@ then
     cd $WorkingDir
     echo "Submitting XF GPU jobs"
     echo "XFCount: $XFCount"
-    echo "XFkeys: $XFkeys"
+    echo "XFkeys: $num_keys"
     echo "Generation: $gen"
-    sbatch --array=1-${XFCount}%${XFkeys} --mem-per-gpu=178gb --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,gen=${gen},SingleBatch=$SingleBatch,batch_size=$XFkeys --job-name=${RunName} $XmacrosDir/GPU_XF_Job.sh
+    sbatch --array=1-${XFCount}%${num_keys} --mem-per-gpu=178gb --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,gen=${gen},SingleBatch=$SingleBatch,batch_size=$num_keys --job-name=${RunName} $XmacrosDir/GPU_XF_Job.sh
     #separate the jobid by the _
     starttime=$(date +%s)
     echo $(squeue -u $(whoami) | grep $tempName | awk '{print $1}' | cut -d_ -f1) > $WorkingDir/RunData/$RunName/JobID.txt
@@ -152,7 +147,7 @@ do
         # resubmit the jobs (should only resubmit single batch jobs)
         echo "Resubmitting XF GPU jobs"
         mv $WorkingDir/RunData/$RunName/PendingFlags/* $WorkingDir/RunData/$RunName/TMPFlags 2> /dev/null
-        sbatch --array=1-${XFCount}%${XFkeys} --mem-per-gpu=178gb --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,gen=${gen},SingleBatch=$SingleBatch,batch_size=$XFkeys --job-name=${RunName} $XmacrosDir/GPU_XF_Job.sh
+        sbatch --array=1-${XFCount}%${num_keys} --mem-per-gpu=178gb --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,gen=${gen},SingleBatch=$SingleBatch,batch_size=$num_keys --job-name=${RunName} $XmacrosDir/GPU_XF_Job.sh
         echo $(squeue -u $(whoami) | grep $tempName | awk '{print $1}' | cut -d_ -f1) > $WorkingDir/RunData/$RunName/JobID.txt
     fi
 done

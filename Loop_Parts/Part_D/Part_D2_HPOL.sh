@@ -1,15 +1,5 @@
 #!/bin/bash
-########  AraSim Execution (D)  ################################################################################################################## 
-#
-#
-#       1. Moves each .dat file individually into a folder that AraSim can access while changing to a .txt file that AraSim can use. (can we just have the .py program make this output a .txt?)
-#
-#       2. For each individual ::
-#           I. Run Arasim for that text file
-#           III. Moves the AraSim output into the Antenna_Performance_Metric folder
-#
-#
-################################################################################################################################################## 
+#This is a version of Part_D2 that uses multiple Seeds for an individual run of AraSim
 
 #variables
 WorkingDir=$1
@@ -17,126 +7,88 @@ RunName=$2
 gen=$3
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
-SpecificSeed=32000
+cd $WorkingDir/Run_Outputs/$RunName/AraSimFlags/
+#cd $WorkingDir/Run_Outputs/AraSimFlags/
+nFiles=0
 
-#chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/
+totPop=$( expr $NPOP \* $Seeds )
 
-cd $WorkingDir
-
-# I'm going to make a directory to hold the AraSim output and error files for each gen
-
-if [ ${gen} -eq 0 ]
-then
-	mkdir -m775 Run_Outputs/${RunName}/AraSim_Outputs
-	mkdir -m775 Run_Outputs/${RunName}/AraSim_Errors
-fi
-
-cd Antenna_Performance_Metric
-for i in `seq 1 $NPOP`
+while [ "$nFiles" != "$totPop" ] # as long as we're not done with AraSim (increase $nFiles each time AraSim success)
 do
-	mv evol_antenna_model_${i}.dat $AraSimExec/a_${i}.txt
+	echo "Waiting for AraSim jobs to finish..."
+	sleep 20
+	# we need to base the counter off of the new flags
+	# these are in the AraSimConfirmed directory
+	nFiles=$(ls -1 --file-type ../AraSimConfirmed | grep -v '/$' | wc -l) # update nFiles 
+	
+	# I'm adding a second set of flags
+	# The first set of flags indicates that the jobs finished
+	# The second set indicates that the job was successful
+	# If the job was unsuccessful, we'll read the flag file to know which job to resubmit
+	for file in *
+	do
+
+		#echo $file
+
+		# if there are not files, then it will look at the literal name given in the for loop (gen_*)
+		# we need to exclude that, since it's not a real file
+		if [ "$file" != "*" ] && [ "$file" != "" ] # both are necessary
+		# We don't want it to think * in the for loop is an actual file
+		# Also, I've found that it also checks the empty file name "" for some reason
+		then
+			current_generation=$(head -n 1 $file) # what gen (should be this one)
+			current_individual=$(head -n 2 $file | tail -n 1) # which individual?
+			current_seed=$(head -n 3 $file | tail -n 1) # which seed of the individual
+
+			#current_file="${gen}_${current_individual}_${current_seed}"
+			current_file="AraSim_$(($((${current_individual}-1))*${Seeds}+${current_seed}))"	
+
+			# now we need to check the error file produced for that job
+			# the error file is in Run_Name/${gen}_AraSim_Outputs
+
+			#echo $current_file
+
+			if grep "segmentation violation" ../AraSim_Errors/${current_file}.error || grep "DATA_LIKE_OUTPUT" ../AraSim_Errors/${current_file}.error || grep "CANCELLED" ../AraSim_Errors/${current_file}.error || grep "please rerun" ../AraSim_Errors/${current_file}.error 
+			then
+				# we need to remove the output and error file associated with that
+				# otherwise, this loop will keep seeing it and keep resubmitting
+				rm -f ../AraSim_Errors/${current_file}.error
+				rm -f ../AraSim_Outputs/${current_file}.output
+
+				echo "segmentation violation/DATA_LIKE_OUTPUT/CANCELLED error!" 
+				
+				# now we can resubmit the job
+				cd $WorkingDir
+				output_name=/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Run_Outputs/$RunName/AraSim_Outputs/${current_file}.output
+				error_name=/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Run_Outputs/$RunName/AraSim_Errors/${current_file}.error
+				sbatch --export=ALL,gen=$gen,num=${current_individual},WorkingDir=$WorkingDir,RunName=$RunName,Seeds=${current_seed},AraSimDir=$AraSimExec --job-name=AraSimCall_AraSeed_$gen_${current_individual}_${current_seed}.run --output=$output_name --error=$error_name Batch_Jobs/ara_hpol_paralleljob.sh
+
+				cd Run_Outputs/$RunName/AraSimFlags/
+
+				# since we need to rerun, we need to remove the flag
+				rm -f ${current_individual}_${current_seed}.txt
+
+			else
+				# we need to add the second flag to denote that all is well if there was not error
+				if [ "$current_individual" != "" ] && [ "$current_seed" != "" ] 
+				then
+					echo "This individual succeeded" > ../AraSimConfirmed/${current_individual}_${current_seed}_confirmation.txt
+				fi
+			fi
+		fi
+	done
 done
 
-#read -p "Press any key to continue... " -n1 -s
-echo "Resuming..."
-echo
+rm -f $WorkingDir/Run_Outputs/$RunName/AraSimFlags/*
+rm -f $WorkingDir/Run_Outputs/$RunName/AraSimConfirmed/*
+#rm -f $WorkingDir/Run_Outputs/$RunName/AraSim_Outputs/*
+#rm -f $WorkingDir/Run_Outputs/$RunName/AraSim_Errors/*
+wait
 
-cd "$AraSimExec"
-
-# Let's make sure we're sourcing the right setup file
-source /fs/ess/PAS1960/BiconeEvolutionOSC/new_root/new_root_setup.sh
-source /cvmfs/ara.opensciencegrid.org/trunk/centos7/setup.sh
-
-if [ $ParallelAra -eq 1 ]
-then
-	job_name=AraSimCall_ParallelArray.sh
-else
-	job_name=AraSimCall_Array.sh
-fi
+cd "$WorkingDir"/Antenna_Performance_Metric
 
 
-# If we're doing a real run, we only need to change the setup .txt file once
-# Although we need to be carefuly, since maybe eventually we'll want to run multiple times at once?
-if [ $DEBUG_MODE -eq 0 ]
-then
-
-############################
-: << END 
-	This next line replaces the number of neutrinos thrown in our setup.txt AraSim file with ${NNT}.
-	setup_dummy.txt is a copy of setup.txt that has NNU=num_nnu. 
-	The below command finds every instance of num_nnu in setup_dummy.txt and replaces it with 
-		${NNT}. It then pipes this information into setup.txt. 
-	Command works the following way: 
-	sed -e "s/<old word>/<new word>/" path/to/filewiththisword.txt > path/to/fileWeAreOverwriting.txt  
-END
-############################
-
-	sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" ${AraSimExec}/setup_dummy_araseed.txt > ${AraSimExec}/setup.txt
-
-	# Now we just need to run AraSim from the setup file
-	# Instead of a for loop, we can use a single command
-	# We need the jobs to go from 1 to NPOP*NSEEDS
-	# For the job name, make it the RunName
-	# This will help for directing the output/error files
-	cd $WorkingDir
-	numJobs=$((NPOP*Seeds))
-	maxJobs=252 # for now, maybe make this a variable in the main loop script
-	sbatch --array=1-${numJobs}%${maxJobs} --export=ALL,gen=$gen,WorkingDir=$WorkingDir,RunName=$RunName,Seeds=$Seeds,AraSimDir=$AraSimExec --job-name=${RunName} Batch_Jobs/${job_name}
-	cd $AraSimExec
-	rm -f outputs/*.root
-
-# If we're testing with the seed, use DEBUG_MODE=1
-# Then, we'll change the setup file for each job
-# If we're using the DEBUG mode, we'll do it the original way
-# This should be ok, since we'll be using few jobs in such instances
-else
-	for i in `seq 1 $NPOP`
-	do
-		for j in `seq 1 $Seeds`
-		do
-		# I think we want to use the below commented out version
-		# but I'm commenting it out for testing purposes
-		SpecificSeed=$(expr $j + 32000)
-		#SpecificSeed=32000
-
-		sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" ${AraSimExec}/setup_dummy_araseed.txt > ${AraSimExec}/setup.txt
-
-	
-		#We will want to call a job here to do what this AraSim call is doing so it can run in parallel
-		cd $WorkingDir
-		output_name=/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Run_Outputs/$RunName/AraSim_Outputs/${gen}_${i}_${j}.output
-		error_name=/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Run_Outputs/$RunName/AraSim_Errors/${gen}_${i}_${j}.error
-		sbatch --export=ALL,gen=$gen,num=$i,WorkingDir=$WorkingDir,RunName=$RunName,Seeds=$j,AraSimDir=$AraSimExec --job-name=AraSimCall_AraSeed_${gen}_${i}_${j}.run --output=$output_name --error=$error_name Batch_Jobs/AraSimCall_AraSeed.sh
-
-		# We are going to implement a notificaiton system
-		# This will require being able to know the job IDs
-		# We'll print this to a file and then read read it in D2
-		
-		cd $AraSimExec
-		rm -f outputs/*.root
-		done
-	done
-
-fi
-
-#This submits the job for the actual ARA bicone. Veff depends on Energy and we need this to run once per run to compare it to. 
 if [ $gen -eq 10000 ]
 then
-	#sed -e "s/num_nnu/100000" /fs/ess/PAS1960/BiconeEvolutionOSC/AraSim/setup_dummy_araseed.txt > /fs/ess/PAS1960/BiconeEvolutionOSC/AraSim/setup.txt
-	sbatch --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,AraSimDir=$AraSimExec Batch_Jobs/AraSimBiconeActual_Prototype.sh 
-
+	cp $WorkingDir/Antenna_Performance_Metric/AraOut_ActualBicone.txt $WorkingDir/Run_Outputs/$RunName/AraOut_ActualBicone.txt
 fi
-#Any place we see the directory AraSimFlags we need to change that so that AraSimFlags is a directory under the runname directory
-#cd $WorkingDir/AraSimFlags/
-
-#chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/
-
-## Let's move the uan files to a directory
-
-cd $WorkingDir/Run_Outputs/${RunName}/uan_files
-mkdir -m775 ${gen}_uan_files
-for i in `seq 1 $NPOP`
-do
-	mkdir -m775 ${gen}_uan_files/${i}
-	mv ${gen}_${i}_*.uan ${gen}_uan_files/${i}/
-done
