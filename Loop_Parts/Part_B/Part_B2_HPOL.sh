@@ -53,4 +53,3 @@ sed -i "s+fileDirectory+${WorkingDir}+" $RunXMacrosDir/output.xmacro
 
 module load xfdtd/7.10.2.3
 xfdtd $XFProj --execute-macro-script=$RunXMacrosDir/output.xmacro || true --splash=false
-

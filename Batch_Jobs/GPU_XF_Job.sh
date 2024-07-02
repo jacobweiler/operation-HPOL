@@ -9,13 +9,12 @@
 #SBATCH -N 1
 #SBATCH -n 40
 #SBATCH -G 2
-#SBATCH --output=RunData/%x/XF_Outputs/XF_%a.output
-#SBATCH --error=RunData/%x/XF_Errors/XF_%a.error
+#SBATCH --output=Run_Outputs/%x/XF_Outputs/XF_%a.output
+#SBATCH --error=Run_Outputs/%x/XF_Errors/XF_%a.error
 ##SBATCH --mem-per-gpu=178gb
 
 ## make sure we're in the right directory
 cd $WorkingDir
-cd Run_Outputs/$RunName/GPUFlags
 
 module load xfdtd/7.10.2.3
 module load cuda

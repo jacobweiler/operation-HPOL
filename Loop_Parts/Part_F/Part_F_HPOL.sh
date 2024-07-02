@@ -22,6 +22,10 @@ module load python/3.7-2019.10
 #cp ARA_Bicone_Data/AraOut_Actual_Bicone_Fixed_Polarity_2.9M_NNU.txt Run_Outputs/$RunName/AraOut_ActualBicone.txt
 
 cd Antenna_Performance_Metric
+
+#Plotting software for Veff(for each individual) vs Generation
+python Plotting/Veff_Plotting.py "$WorkingDir"/Run_Outputs/$RunName "$WorkingDir"/Run_Outputs/$RunName $gen $NPOP $Seeds
+
 # Format is source directory (where is generationDNA.csv), destination directory (where to put plots), npop
 python FScorePlot.py $WorkingDir/Run_Outputs/$RunName $WorkingDir/Run_Outputs/$RunName $NPOP $gen
 

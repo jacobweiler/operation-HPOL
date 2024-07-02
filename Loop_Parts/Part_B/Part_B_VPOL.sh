@@ -156,4 +156,7 @@ fi
 
 ## We'll make the run name the job name
 ## This way, we can use it in the SBATCH commands
-sbatch --array=1-${NPOP}%${batch_size} --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,indiv=$individual_number,indiv_dir=$indiv_dir,gen=${gen} --job-name=${RunName} Batch_Jobs/GPU_XF_Job.sh
+sbatch  --array=1-${NPOP}%${batch_size} \
+        --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,indiv=$individual_number,indiv_dir=$indiv_dir,gen=${gen} \
+        --job-name=${RunName} \
+        Batch_Jobs/GPU_XF_Job.sh

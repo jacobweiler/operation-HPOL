@@ -34,8 +34,6 @@ fi
 
 chmod -R 777 $XmacrosDir 2> /dev/null
 
-cd $XmacrosDir
-
 #get rid of the simulation_PEC.xmacro that already exists
 rm -f $RunXMacrosDir/simulation_PEC.xmacro
 
@@ -97,8 +95,6 @@ fi
 # make sure there are no stray jobs from previous runs
 scancel -n ${RunName}
 
-job_file=$WorkingDir/Batch_Jobs/GPU_XF_Job.sh
-
 # Numbers through testing
 if [ $SingleBatch -eq 1 ]
 then
@@ -109,6 +105,6 @@ else
 fi
 
 echo "Submitting XF jobs with batch size $batch_size"
-sbatch --array=1-${XFCOUNT}%${batch_size} \
-	   --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,indiv=$individual_number,gen=${gen},batch_size=$batch_size \
-	   --job-name=${RunName} --time=${job_time} $job_file 
+sbatch  --array=1-${XFCOUNT}%${batch_size} \
+        --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,indiv=$individual_number,gen=${gen},batch_size=$batch_size \
+        --job-name=${RunName} --time=${job_time} $WorkingDir/Batch_Jobs/GPU_XF_Job.sh 

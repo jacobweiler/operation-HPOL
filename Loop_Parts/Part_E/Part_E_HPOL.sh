@@ -44,16 +44,6 @@ mv vEffectives.csv $WorkingDir/Generation_Data/
 cp errorBars.csv "$WorkingDir"/Run_Outputs/$RunName/${gen}_errorBars.csv
 mv errorBars.csv $WorkingDir/Generation_Data/
 
-# Let's produce the plot of the gain pattern for each of the antennas
-# Start by making a directory to contain the images for the gain patterns of that generation
-### NOTE: Moved to Part F in image_maker.sh. Keep this commented for now
-#mkdir -m 775 $WorkingDir/Run_Outputs/$RunName/${gen}_Gain_Plots
-#python $WorkingDir/Antenna_Performance_Metric/polar_plotter.py $WorkingDir/Run_Outputs/$RunName/${gen}_Gain_Plots $RunName 14 $NPOP $gen
-
-
-#Plotting software for Veff(for each individual) vs Generation
-python Plotting/Veff_Plotting.py "$WorkingDir"/Run_Outputs/$RunName "$WorkingDir"/Run_Outputs/$RunName $gen $NPOP $Seeds
-
 cd $WorkingDir
 
 if [ $gen -eq 0 ]; then
@@ -65,24 +55,6 @@ if [ $indiv -eq $NPOP ]; then
 fi
 
 python Data_Generators/gensData.py $gen Generation_Data 
-cd Antenna_Performance_Metric
-next_gen=$(($gen+1))
-python Plotting/LRTPlot.py "$WorkingDir" "$WorkingDir"/Run_Outputs/$RunName $next_gen $NPOP $GeoFactor
-
-# Run 3D Plots of L,R,T vs Fitness
-python Plotting/3DLength.py "$WorkingDir" "$WorkingDir"/Run_Outputs/$RunName $next_gen $NPOP $GeoFactor $NSECTIONS
-python Plotting/3DRadius.py "$WorkingDir" "$WorkingDir"/Run_Outputs/$RunName $next_gen $NPOP $GeoFactor $NSECTIONS
-python Plotting/3DTheta.py "$WorkingDir" "$WorkingDir"/Run_Outputs/$RunName $next_gen $NPOP $GeoFactor $NSECTIONS
-
-cd $WorkingDir
-
-
-#we want to record the gain data each time
-cd $AraSimExec
-for i in `seq 1 $NPOP`
-do
-	mv a_${i}.txt $XFProj/XF_model_${gen}_${i}.txt
-done
 
 cd $WorkingDir/Antenna_Performance_Metric
 
@@ -96,19 +68,12 @@ echo 'Congrats on getting a fitness score!'
 cd $WorkingDir/Run_Outputs/$RunName
 
 mkdir -m777 AraOut_$gen
-cd Antenna_Performance_Metric
-for i in `seq 1 $NPOP`
-do
-    for j in `seq 1 $Seeds`
-    do
-
-	cp AraOut_${gen}_${i}_${j}.txt $WorkingDir/Run_Outputs/$RunName/AraOut_${gen}/AraOut_${gen}_${i}_${j}.txt
-	
-	done
-
-done 
-
 cd $WorkingDir
+for i in `seq 1 $NPOP`; do
+    for j in `seq 1 $Seeds`; do
+		mv $RunDir/AraSim_Outputs/AraOut_${gen}_${i}_${j}.txt $WorkingDir/Run_Outputs/$RunName/AraOut_${gen}/AraOut_${gen}_${i}_${j}.txt
+	done
+done 
 
 mv Generation_Data/parents.csv Run_Outputs/$RunName/${gen}_parents.csv
 mv Generation_Data/genes.csv Run_Outputs/$RunName/${gen}_genes.csv

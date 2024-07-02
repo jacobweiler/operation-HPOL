@@ -30,7 +30,7 @@ echo a_${num}_${seed}.txt
 chmod -R 777 $AraSimDir/outputs/
 
 # We need to create a setup file for each individual in the population 
-gain_file=$TMPDIR/a_${num}.txt 
+gain_file=$RunDir/txt_files/a_${num}.txt 
 
 sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" -e "s/hpol_gain/$gain_file" ${AraSimExec}/setup_dummy_hpol.txt > $TMPDIR/setup.txt
 
@@ -39,9 +39,10 @@ echo "Starting AraSim processes"
 for (( i=0; i<${threads}; i++ ))
 do
     # we need $threads unique id's for each seed
+    dataoutloc="$TMPDIR/AraOut_${gen}_${indiv}_${indiv_thread}.txt"
     indiv_thread=$((${init}*${threads}+${i}))
     echo "individual thread is $indiv_thread"
-    ./AraSim $TMPDIR/setup.txt ${indiv_thread} $TMPDIR > $TMPDIR/AraOut_${gen}_${num}_${indiv_thread}.txt &
+    ./AraSim $TMPDIR/setup.txt ${indiv_thread} $TMPDIR > $dataoutloc &
 done
 
 wait
@@ -60,7 +61,7 @@ do
     echo "individual thread is $indiv_thread"
     #mv AraOut.setup.txt.run${indiv_thread}.root $WorkingDir/Antenna_Performance_Metric/AraOut_${gen}_${num}_${indiv_thread}.root
     rm AraOut.setup.txt.run${indiv_thread}.root
-    mv AraOut_${gen}_${num}_${indiv_thread}.txt $WorkingDir/Antenna_Performance_Metric/AraOut_${gen}_${num}_${indiv_thread}.txt
+    mv $dataoutloc $WorkingDir/Run_Outputs/$RunName/AraSim_Outputs/${gen}_AraSim_Outputs/AraOut_${gen}_${indiv}_${indiv_thread}.txt
 done
 
 wait

@@ -23,9 +23,9 @@ module load python/3.7-2019.10
 
 cd Antenna_Performance_Metric
 # Format is source directory (where is generationDNA.csv), destination directory (where to put plots), npop
-python FScorePlot.py $WorkingDir/Run_Outputs/$RunName $WorkingDir/Run_Outputs/$RunName $NPOP $gen
+python Plotting/FScorePlot.py $WorkingDir/Run_Outputs/$RunName $WorkingDir/Run_Outputs/$RunName $NPOP $gen
 
-python3 color_plots.py $WorkingDir/Run_Outputs/$RunName/ $WorkingDir/Run_Outputs/$RunName $NPOP $gen $Seeds
+python3 Plotting/color_plots.py $WorkingDir/Run_Outputs/$RunName/ $WorkingDir/Run_Outputs/$RunName $NPOP $gen $Seeds
 
 mkdir -m 775 $WorkingDir/Run_Outputs/$RunName/Gain_Plots/${gen}_Gain_Plots
 ./image_maker.sh $WorkingDir/Run_Outputs/$RunName/Generation_Data/Generation_${gen} $WorkingDir/../Xmacros $WorkingDir/Run_Outputs/$RunName/Antenna_Images $gen $WorkingDir $RunName $NPOP

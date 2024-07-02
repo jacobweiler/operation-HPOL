@@ -32,7 +32,15 @@ echo a_${num}_${seed}.txt
 #chmod -R 777 /fs/ess/PAS1960/BiconeEvolutionOSC/AraSim/outputs/
 chmod -R 777 $AraSimDir/outputs/
 
-./AraSim setup.txt ${SLURM_ARRAY_TASK_ID} $TMPDIR a_${num}.txt > $TMPDIR/AraOut_${gen}_${num}_${seed}.txt 
+# We need to create a setup file for each individual in the population 
+gain_file=$RunDir/txt_files/a_${num}.txt 
+
+sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" -e "s/hpol_gain/$gain_file" ${AraSimExec}/setup_dummy_hpol.txt > $TMPDIR/setup.txt
+
+dataoutloc="$TMPDIR/AraOut_${gen}_${indiv}_${indiv_thread}.txt"
+
+./AraSim $TMPDIR/setup.txt ${indiv_thread} $TMPDIR > $dataoutloc 
+
 cd $TMPDIR
 echo "Let's see what's in TMPDIR:"
 ls -alrt 
