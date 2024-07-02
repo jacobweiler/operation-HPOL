@@ -38,28 +38,19 @@ echo $flag_files
 echo "Done!"
 
 # Removing Old output xmacro
-cd $XmacrosDir
-rm -f output.xmacro
+rm -f $RunXMacrosDir/output.xmacro
 
 # Writing new xmacro
-echo "var NPOP = $NPOP;" >> output.xmacro
-echo "for (var k = $(($gen*$NPOP + 1)); k <= $(($gen*$NPOP+$NPOP)); k++){" >> output.xmacro
+echo "var NPOP = $NPOP;" >> $RunXMacrosDir/output.xmacro
+echo "var gen = \"$gen\";" >> $RunXMacrosDir/output.xmacro
+echo "var WorkingDir = \"$WorkingDir\";" >> $RunXMacrosDir/output.xmacro
+echo "var RunDir = \"$WorkingDir/RunData/$RunName\";" >> $RunXMacrosDir/output.xmacro
+echo "for (var k = $(($gen*$NPOP + 1)); k <= $(($gen*$NPOP+$NPOP)); k++){" >> $RunXMacrosDir/output.xmacro
 
-if [ $NSECTIONS -eq 1 ]; then
-	cat shortened_outputmacroskeleton.txt >> output.xmacro
-else
-	cat shortened_outputmacroskeleton_Asym.txt >> output.xmacro
-fi
+cat shortened_outputmacroskeleton.txt >> $RunXMacrosDir/output.xmacro
 
-sed -i "s+fileDirectory+${WorkingDir}+" output.xmacro
+sed -i "s+fileDirectory+${WorkingDir}+" $RunXMacrosDir/output.xmacro
 
-module load xfdtd/7.9.2.2
-xfdtd $XFProj --execute-macro-script=$XmacrosDir/output.xmacro || true --splash=false
+module load xfdtd/7.10.2.3
+xfdtd $XFProj --execute-macro-script=$RunXMacrosDir/output.xmacro || true --splash=false
 
-cd $WorkingDir/Antenna_Performance_Metric
-for i in `seq $(($gen*$NPOP + $indiv)) $(($gen*$NPOP+$NPOP))`; do
-	pop_ind_num=$(($i - $gen*$NPOP))
-	for freq in `seq 1 60`; do
-		mv ${i}_${freq}.uan "$WorkingDir"/Run_Outputs/$RunName/uan_files/${gen}_${pop_ind_num}_${freq}.uan
-	done
-done

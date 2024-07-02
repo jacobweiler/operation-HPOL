@@ -100,14 +100,14 @@ g = parser.parse_args()
 n = 37
 m = 73
 for antenna in range(g.NPOP):
-    with open("evol_antenna_model_"+str(antenna+1)+".dat", "w+") as datFile:
-        os.chmod("evol_antenna_model_"+str(antenna+1)+".dat", 0o777)
+    with open(g.WorkingDir + "/Run_Outputs/" + g.RunName + "txt_files/a_"+str(antenna+1)+".txt", "w+") as txtFile:
+        os.chmod(g.WorkingDir + "/Run_Outputs/" + g.RunName + "txt_files/a_"+str(antenna+1)+".txt", 0o777)
         for freq in range(numFreq):
-            datFile.write(head1_a + str(freqVals[freq])+ head1_b+ '\n')
-            datFile.write(head2+ '\n')
-            datFile.write(head3+ '\n')
+            txtFile.write(head1_a + str(freqVals[freq])+ head1_b+ '\n')
+            txtFile.write(head2+ '\n')
+            txtFile.write(head3+ '\n')
             uanDat = readFile(antenna+1, freq+1)
             for p in range(m-1):
                 for q in range(n):
-                    datFile.write(uanDat[p][q])
+                    txtFile.write(uanDat[p][q])
 # Done!

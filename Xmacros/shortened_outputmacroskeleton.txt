@@ -23,7 +23,7 @@ query.simulationId = simNum;
 query.sensorType = ResultQuery.FarZoneSensor;
 query.sensorId = "Far Zone Sensor";
 query.timeDependence = ResultQuery.SteadyState;
-query.resultType = ResultQuery.Gain;
+query.resultType = ResultQuery.RealizedGain;
 query.fieldScatter = ResultQuery.TotalField;
 query.resultComponent = ResultQuery.Theta;
 query.dataTransform = ResultQuery.NoTransform;
@@ -99,9 +99,11 @@ Output.println( "5getCurrentDataSet() : " +
 inputpower.getReasonWhyInvalid() );
 }
 for (var i = 0; i <= 59; i++){
-var file = "fileDirectory/Antenna_Performance_Metric/";
-file = file + k + "_";
-file = file + (i+1) + ".uan";
+var ind_num = k - (gen * NPOP);
+var file = RunDir + "/uan_files/" + gen + "_uan_files/" + ind_num + "/";
+file = file + gen + "_" + ind_num + "_";
+file = file + (i) + ".uan";
+
 FarZoneUtils.exportToUANFile(thdata,thphase,phdata,phphase,inputpower,file, i);
 }
 }

@@ -9,15 +9,15 @@
 #SBATCH -N 1
 #SBATCH -n 40
 #SBATCH -G 2
-#SBATCH --output=/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Run_Outputs/%x/XF_Outputs/XF_%a.output
-#SBATCH --error=/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Run_Outputs/%x/XF_Errors/XF_%a.error
+#SBATCH --output=RunData/%x/XF_Outputs/XF_%a.output
+#SBATCH --error=RunData/%x/XF_Errors/XF_%a.error
 ##SBATCH --mem-per-gpu=178gb
 
 ## make sure we're in the right directory
 cd $WorkingDir
 cd Run_Outputs/$RunName/GPUFlags
 
-module load xfdtd/7.9.2.2
+module load xfdtd/7.10.2.3
 module load cuda
 
 ## We need to get the individual number
@@ -49,6 +49,5 @@ cd $indiv_dir
 xfsolver --use-xstream=true --xstream-use-number=2 --num-threads=2 -v
 
 cd $WorkingDir
-cd Run_Outputs/$RunName/GPUFlags
 
-echo "The GPU job is done!" >> Part_B_GPU_Flag_${individual_number}.txt 
+echo "The GPU job is done!" >> $RunDir/GPUFlags/Part_B_GPU_Flag_${individual_number}.txt 

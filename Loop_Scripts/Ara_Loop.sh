@@ -47,11 +47,13 @@ if ! [ -f "saveStates/${saveStateFile}" ]; then
 	cp $WorkingDir/$setupfile $WorkingDir/RunData/$RunName/setup.sh
 	cp $WorkingDir/RunData/$RunName/setup.sh $WorkingDir/RunData/$RunName/settings.py
 	XFProj=$WorkingDir/RunData/${RunName}/${RunName}.xf
-	XmacrosDir=$WorkingDir/Xmacros 
+	XmacrosDir=$WorkingDir/Xmacros
+	RunXMacrosDir=$RunDir/XMacros 
     AraSimExec="/fs/ess/PAS1960/BiconeEvolutionOSC/AraSim" 
 	echo "XFProj=${XFProj}" >> $WorkingDir/RunData/$RunName/setup.sh
 	echo "XmacrosDir=${XmacrosDir}" >> $WorkingDir/RunData/$RunName/setup.sh
     echo "AraSimExec=${AraSimExec}" >> $WorkingDir/RunData/$RunName/setup.sh
+	echo "RunXMacrosDir=${RunXMacrosDir}" >> $RunDir/setup.sh
 else
 	source $RunDir/setup.sh
 fi
@@ -70,22 +72,22 @@ for gen in `seq $InitialGen $TotalGens`; do
             read -p "Starting generation ${gen} at location ${state}. Press any key to continue... " -n1 -s
 		fi
 		# Make the run name directory
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/AraSimFlags
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/AraSimConfirmed
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/GPUFlags
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/XFGPUOutputs
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/uan_files
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/Gain_Plots
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/Antenna_Images
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/AraOut
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/Generation_Data
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/Evolution_Plots
-		mkdir -m777 $WorkingDir/Run_Outputs/$RunName/Root_Files
-		head -n 53 Loop_Scripts/Asym_XF_Loop.sh | tail -n 33 > $WorkingDir/Run_Outputs/$RunName/run_details.txt
+		mkdir -m777 $RunDir/AraSimFlags
+		mkdir -m777 $RunDir/AraSimConfirmed
+		mkdir -m777 $RunDir/GPUFlags
+		mkdir -m777 $RunDir/XFOutputs
+		mkdir -m777 $RunDir/uan_files
+		mkdir -m777 $RunDir/Plots
+		mkdir -m777 $RunDir/Antenna_Images
+		mkdir -m777 $RunDir/AraOut
+		mkdir -m777 $RunDir/Generation_Data
+		mkdir -m777 $RunDir/Root_Files
+		mkdir -m777 $RunDir/txt_files
+		mkdir -m777 $RunDir/Xmacros
+		head -n 53 Loop_Scripts/Asym_XF_Loop.sh | tail -n 33 > $RunDir/run_details.txt
 		# Create the run's date and save it in the run's directory
 		python Data_Generators/dateMaker.py
-		mv "runDate.txt" "$WorkingDir/Run_Outputs/$RunName/" -f
+		mv "runDate.txt" "$RunDir/" -f
 		state=1
 	fi
 
@@ -107,9 +109,9 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part B1 ##
 	if [ $state -eq 2 ]; then
         if [ $antenna == "VPOL"]; then
-            ./Loop_Parts/Part_B/Part_B_VPOL.sh $WorkingDir $RunName $gen
+            ./Loop_Parts/Part_B/Part_B_VPOL.sh $WorkingDir $RunName $gen $indiv
         elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_B/Part_B_HPOL.sh $WorkingDir $RunName $gen
+            ./Loop_Parts/Part_B/Part_B_HPOL.sh $WorkingDir $RunName $gen $indiv
         else
             echo "ERROR: Antenna type not recognized"
             exit 1
@@ -146,7 +148,7 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part D1 ##
 	if [ $state -eq 5 ]; then
         if [ $antenna == "VPOL" ]; then
-            ./Loop_Parts/Part_D/Part_D1_Array.sh $WorkingDir $RunName $gen
+            ./Loop_Parts/Part_D/Part_D1_VPOL.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
             ./Loop_Parts/Part_D/Part_D1_HPOL.sh $WorkingDir $RunName $gen
         else
@@ -161,7 +163,7 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part D2 ##
 	if [ $state -eq 6 ]; then
         if [ $antenna == "VPOL" ]; then
-            ./Loop_Parts/Part_D/Part_D2_Array.sh $WorkingDir $RunName $gen
+            ./Loop_Parts/Part_D/Part_D2_VPOL.sh $WorkingDir $RunName $gen
         elif [ $antenna == "HPOL" ]; then
             ./Loop_Parts/Part_D/Part_D2_HPOL.sh $WorkingDir $RunName $gen
         else

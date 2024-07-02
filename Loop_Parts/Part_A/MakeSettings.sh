@@ -25,6 +25,18 @@ echo 'mutation_rate: '$MUTATION
 echo 'reproduction_rate: '$REPRODUCTION
 echo 'sigma: '$SIGMA
 
+echo '#VPOL PARAMS'
+echo 'radius: '$RADIUS
+echo 'length: '$LENGTH
+echo 'angle: '$ANGLE
+echo 'curved: '$CURVED
+echo 'a: '$A
+echo 'b: '$B
+echo 'separation: '$SEPARATION
+echo 'nsections: '$NSECTIONS
+
+echo '#HPOL PARAMS'
+
 echo '# Selection'
 echo 'tournament_rate: '$TOURNAMENT
 echo 'roulette_rate: '$ROULETTE

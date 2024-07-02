@@ -8,174 +8,107 @@
 #      3. Run the simulations for each antenna in XF
 #
 #################################################################################################################################################### 
-
-#variables
+# variables
 WorkingDir=$1
 RunName=$2
 gen=$3
-source $WorkingDir/RunData/$RunName/setup.sh
+indiv=$4
+source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
-echo "XFProj: $XFProj"
-echo "WorkingDir: $WorkingDir"
-echo "XMacrosDir: $XmacrosDir"
+mkdir -m777 $RunDir/Plots/${gen}
 
+# Delete Simulation directories if they exist
+for i in $(seq 1 $XFCOUNT); do
+	individual_number=$(($gen*$XFCOUNT + $i))
+	indiv_dir_parent=$XFProj/Simulations/$(printf "%06d" $individual_number)
 
-cd $WorkingDir
-# Get the number of jobs running and number of jobs finished
-# truncate the RunName to 8 characters
-tempName=${RunName:0:8}
-count_running=$(squeue -u $(whoami) | grep $tempName | wc -l)
-count_finished=$(ls $WorkingDir/RunData/$RunName/GPU_Flags | wc -l) 2> /dev/null
-
-function printProgressBar () {
-	#This function will create a progress bar based
-	#on an inputted name and target file count
-
-	cd $WorkingDir/RunData/$RunName/${1}_Flags
-	flags=$(find . -type f | wc -l)
-	percent=$(bc <<< "scale=2; $flags/$2")
-	percent=$(bc <<< "scale=2; $percent*100")
-
-	num_bars=$(bc <<< "scale=0; $percent/4")
-	num_spaces=$(bc <<< "scale=0; 25-$num_bars")
-	GREEN='\033[0;32m'
-	NC='\033[0m'
-
-	echo -ne "$1"
-	if [ ${#1} -lt 10 ]
-	then
-		for ((i=0; i<10-${#1}; i++))
-		do
-			echo -ne " "
-		done
+	if [ -d $indiv_dir_parent ]; then
+		rm -rf $indiv_dir_parent
 	fi
-	echo -ne "[${GREEN}"
-	for ((i=0; i<$num_bars; i++))
-	do
-		echo -ne "#"
-	done
-	echo -ne "${NC}"
-	for ((i=0; i<$num_spaces; i++))
-	do
-		echo -ne "#"
-	done
-	echo -ne "] - flags: $flags, $percent %"
-	echo -ne "\n"
-}
-
-#Call the XF GPU jobs
-
-if [ $SingleBatch -eq 1 ]
-then
-    XFCount=$num_keys
-else
-    XFCount=$NPOP
-fi
-
-# If there are still jobs running, but not all the flags are there, then we need to wait for the jobs to finish
-# Else, we can start the next batch of jobs
-if [ $count_running -eq 0 ] && [ $count_finished -lt $NPOP ]
-then
-    echo ""
-    echo "Preparing XF GPU jobs"
-    echo ""
-    starttime=$(date +%s)
-    cd $XmacrosDir
-    if [ $SingleBatch -eq 1 ]
-    then
-        mv $WorkingDir/RunData/$RunName/PendingFlags/* $WorkingDir/RunData/$RunName/TMPFlags 2> /dev/null
-    else
-        mv $WorkingDir/RunData/$RunName/GPU_Flags/* $WorkingDir/RunData/$RunName/TMPFlags 2> /dev/null
-    fi
-    mkdir -m775 $WorkingDir/RunData/$RunName/uan_files/${gen}_uan_files 2> /dev/null
-    mkdir -m775 $WorkingDir/RunData/$RunName/detector_images/$gen
-    
-    # Run the simulation xmacro
-    rm -f $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    touch $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    if [ $gen -ne 0 ]
-    then
-        echo $(($gen*$NPOP + 1)) > $XFProj/Simulations/.nextSimulationNumber
-    fi
-
-    echo "var popsize = $NPOP;" > $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    echo "var gen = \"$gen\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    echo "var WorkingDir = \"$WorkingDir\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    echo "var RunDir = \"$WorkingDir/RunData/$RunName\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    echo "var units = \" $XFunits\";" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro ## might need to add space in beginning XF statement if error
-    # ADD IN HPOL SPECIFIC VARIABLES HERE
-
-    # if gen equals 0
-    if [ $gen -eq 0 ]
-    then
-        echo "App.saveCurrentProjectAs(\"$WorkingDir/RunData/$RunName/$RunName\");" >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-    fi
-
-
-    cat $XmacrosDir/HPOL_skeleton.js >> $WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro
-
-    xfdtd $XFProj --execute-macro-script=$WorkingDir/RunData/$RunName/XMacros/simulation_PEC.xmacro || true
-
-    endtime=$(date +%s)
-    echo "Generation $gen XF Geometries Time: $(($endtime - $starttime))" >> $WorkingDir/RunData/$RunName/TimeData.txt
-    # Submit the XF GPU jobs
-    cd $WorkingDir
-    echo "Submitting XF GPU jobs"
-    echo "XFCount: $XFCount"
-    echo "XFkeys: $num_keys"
-    echo "Generation: $gen"
-    sbatch --array=1-${XFCount}%${num_keys} --mem-per-gpu=178gb --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,gen=${gen},SingleBatch=$SingleBatch,batch_size=$num_keys --job-name=${RunName} $XmacrosDir/GPU_XF_Job.sh
-    #separate the jobid by the _
-    starttime=$(date +%s)
-    echo $(squeue -u $(whoami) | grep $tempName | awk '{print $1}' | cut -d_ -f1) > $WorkingDir/RunData/$RunName/JobID.txt
-fi
-
-echo ""
-echo ""
-# Wait for all the jobs to finish (wait for there to be NPOP files in the GPU_Flags dir)\
-flag_count=$(ls $WorkingDir/RunData/$RunName/GPU_Flags | wc -l)
-while [ $flag_count -lt $NPOP ]
-do
-    cd $WorkingDir/XF
-    sleep 10
-    tput cuu 1
-    flag_count=$(ls $WorkingDir/RunData/$RunName/GPU_Flags | wc -l)
-    count_running=$(squeue -u $(whoami) | grep $tempName | wc -l)
-    printProgressBar "GPU" $NPOP
-    if [ $count_running -eq 0 ]
-    then
-        # resubmit the jobs (should only resubmit single batch jobs)
-        echo "Resubmitting XF GPU jobs"
-        mv $WorkingDir/RunData/$RunName/PendingFlags/* $WorkingDir/RunData/$RunName/TMPFlags 2> /dev/null
-        sbatch --array=1-${XFCount}%${num_keys} --mem-per-gpu=178gb --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,gen=${gen},SingleBatch=$SingleBatch,batch_size=$num_keys --job-name=${RunName} $XmacrosDir/GPU_XF_Job.sh
-        echo $(squeue -u $(whoami) | grep $tempName | awk '{print $1}' | cut -d_ -f1) > $WorkingDir/RunData/$RunName/JobID.txt
-    fi
 done
 
-cd $WorkingDir/XF
+# store the next simulation number in the hidden file
+if [[ $gen -ne 0 ]]; then
+	echo $(($gen*$XFCOUNT + 1)) > $XFProj/Simulations/.nextSimulationNumber
+fi
 
-echo "XF GPU jobs finished"
-endtime=$(date +%s)
-#echo "Generation $gen XF GPU Job Time: $(($endtime - $starttime))" >> $WorkingDir/RunData/$RunName/TimeData.txt
+chmod -R 777 $XmacrosDir 2> /dev/null
 
-# find jobid
-jobid=$(cat $WorkingDir/RunData/$RunName/JobID.txt)
-scancel $jobid
+cd $XmacrosDir
 
-rm -f $WorkingDir/RunData/$RunName/XMacros/output.xmacro
+#get rid of the simulation_PEC.xmacro that already exists
+rm -f $RunXMacrosDir/simulation_PEC.xmacro
 
-echo "Creating output.xmacro"
 
-echo "var popsize = $NPOP;" > $WorkingDir/RunData/$RunName/XMacros/output.xmacro
-echo "var gen = \"$gen\";" >> $WorkingDir/RunData/$RunName/XMacros/output.xmacro
-echo "var WorkingDir = \"$WorkingDir\";" >> $WorkingDir/RunData/$RunName/XMacros/output.xmacro
-echo "var RunDir = \"$WorkingDir/RunData/$RunName\";" >> $WorkingDir/RunData/$RunName/XMacros/output.xmacro
+# Create the simulation_PEC.xmacro
+echo "var NPOP = $NPOP;" > $RunXMacrosDir/simulation_PEC.xmacro
+echo "var indiv = $indiv;" >> $RunXMacrosDir/simulation_PEC.xmacro
+echo "var gen = $gen;" >> $RunXMacrosDir/simulation_PEC.xmacro
+echo "var workingdir = \"$WorkingDir\";" >> $RunXMacrosDir/simulation_PEC.xmacro
+echo "var RunName = \"$RunName\";" >> $RunXMacrosDir/simulation_PEC.xmacro
+echo "var freq_start = $FreqStart;" >> $RunXMacrosDir/simulation_PEC.xmacro
+echo "var freq_step = $FreqStep;" >> $RunXMacrosDir/simulation_PEC.xmacro
+echo "var freqCoefficients = $FREQS;" >> $RunXMacrosDir/simulation_PEC.xmacro
 
-cat $XmacrosDir/output_skeleton.js >> $WorkingDir/RunData/$RunName/XMacros/output.xmacro
+cat headerHPOL.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat functioncallsHPOL.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat build_hpol.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat CreatePEC.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat CreateAntennaSource.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat CreateGrid.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat CreateSensors.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat CreateAntennaSimulationData.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat QueueSimulation.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat MakeImage.js >> $RunXMacrosDir/simulation_PEC.xmacro
 
-xfdtd $XFProj --execute-macro-script=$WorkingDir/RunData/$RunName/XMacros/output.xmacro || true --splash=false
+# Remove the extra simulations
+if [[ $gen -ne 0 && $i -eq 1 ]]
+then
+	cd $XFProj
+	rm -rf Simulations
+fi
 
-# Deleting simulation files for each generation (Saves a TON of space and we don't need these files necessarily since we can recreate them even if it's annoying) 
-# Comment these two lines out if you want to keep the simulation files for each generation (it takes up a lot of space, just be wary)
-cd $WorkingDir/RunData/$RunName/$RunName.xf/Simulations
-rm -r *
+# Run XF simulation PEC
+echo
+echo
+echo 'Opening XF user interface...'
+echo '*** Please remember to save the project with the same name as RunName! ***'
+echo
+echo '1. Import and run simulation_PEC.xmacro'
+echo '2. Import and run output.xmacro'
+echo '3. Close XF'
+
+module load xfdtd/7.10.2.3
+
+xfdtd $XFProj --execute-macro-script=$RunXMacrosDir/simulation_PEC.xmacro || true
+
+chmod -R 775 $WorkingDir/../Xmacros 2> /dev/null
+
+# Submit the Batch XF Job to solve the simulations
+cd $WorkingDir
+
+if [ $NPOP -lt $num_keys ]
+then
+	batch_size=$NPOP
+else
+	batch_size=$num_keys
+fi
+
+# make sure there are no stray jobs from previous runs
+scancel -n ${RunName}
+
+job_file=$WorkingDir/Batch_Jobs/GPU_XF_Job.sh
+
+# Numbers through testing
+if [ $SingleBatch -eq 1 ]
+then
+	XFCOUNT=$batch_size
+	job_time="15:00:00"
+else
+	job_time="04:00:00"
+fi
+
+echo "Submitting XF jobs with batch size $batch_size"
+sbatch --array=1-${XFCOUNT}%${batch_size} \
+	   --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,indiv=$individual_number,gen=${gen},batch_size=$batch_size \
+	   --job-name=${RunName} --time=${job_time} $job_file 
