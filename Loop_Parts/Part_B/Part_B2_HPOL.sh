@@ -38,18 +38,18 @@ echo $flag_files
 echo "Done!"
 
 # Removing Old output xmacro
-rm -f $RunXMacrosDir/output.xmacro
+rm -f $RunXmacrosDir/output.xmacro
 
 # Writing new xmacro
-echo "var NPOP = $NPOP;" >> $RunXMacrosDir/output.xmacro
-echo "var gen = \"$gen\";" >> $RunXMacrosDir/output.xmacro
-echo "var WorkingDir = \"$WorkingDir\";" >> $RunXMacrosDir/output.xmacro
-echo "var RunDir = \"$WorkingDir/RunData/$RunName\";" >> $RunXMacrosDir/output.xmacro
-echo "for (var k = $(($gen*$NPOP + 1)); k <= $(($gen*$NPOP+$NPOP)); k++){" >> $RunXMacrosDir/output.xmacro
+echo "var NPOP = $NPOP;" >> $RunXmacrosDir/output.xmacro
+echo "var gen = \"$gen\";" >> $RunXmacrosDir/output.xmacro
+echo "var WorkingDir = \"$WorkingDir\";" >> $RunXmacrosDir/output.xmacro
+echo "var RunDir = \"$WorkingDir/RunData/$RunName\";" >> $RunXmacrosDir/output.xmacro
+echo "for (var k = $(($gen*$NPOP + 1)); k <= $(($gen*$NPOP+$NPOP)); k++){" >> $RunXmacrosDir/output.xmacro
 
-cat shortened_outputmacroskeleton.txt >> $RunXMacrosDir/output.xmacro
+cat shortened_outputmacroskeleton.txt >> $RunXmacrosDir/output.xmacro
 
-sed -i "s+fileDirectory+${WorkingDir}+" $RunXMacrosDir/output.xmacro
+sed -i "s+fileDirectory+${WorkingDir}+" $RunXmacrosDir/output.xmacro
 
 module load xfdtd/7.10.2.3
-xfdtd $XFProj --execute-macro-script=$RunXMacrosDir/output.xmacro || true --splash=false
+xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/output.xmacro || true --splash=false

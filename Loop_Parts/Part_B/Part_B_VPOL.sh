@@ -58,26 +58,26 @@ cd $XmacrosDir
 freqlist="8333 10000 11667 13333 15000 16667 18334 20000 21667 23334 25000 26667 28334 30000 31667 33334 35000 36667 38334 40001 41667 43334 45001 46667 48334 50001 51668 53334 55001 56668 58334 60001 61668 63334 65001 66668 68335 70001 71668 73335 75001 76668 78335 80001 81668 83335 85002 86668 88335 90002 91668 93335 95002 96668 98335 100000 101670 103340 105000 106670"
 
 # Getting rid of the old simulation_PEC.xmacro
-rm -f $RunXMacrosDir/simulation_PEC.xmacro
+rm -f $RunXmacrosDir/simulation_PEC.xmacro
 
-echo "var NPOP = $NPOP;" > $RunXMacrosDir/simulation_PEC.xmacro
-echo "var indiv = $indiv;" >> $RunXMacrosDir/simulation_PEC.xmacro
-echo "var freq " | tr "\n" "=" >> $RunXMacrosDir/simulation_PEC.xmacro
+echo "var NPOP = $NPOP;" > $RunXmacrosDir/simulation_PEC.xmacro
+echo "var indiv = $indiv;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var freq " | tr "\n" "=" >> $RunXmacrosDir/simulation_PEC.xmacro
 
 # Reading in Frequency list
 for i in $freqlist; do
 	if [ $i -eq 8333 ]; then
-		echo " " | tr "\n" "[" >> $RunXMacrosDir/simulation_PEC.xmacro
+		echo " " | tr "\n" "[" >> $RunXmacrosDir/simulation_PEC.xmacro
     fi
 
 	k=$((1*$i))
 
 	if [ $i -ne 106670 ]; then
-		echo "scale=2 ; $k/100 " | bc | tr "\n" "," >> $RunXMacrosDir/simulation_PEC.xmacro
-		echo "" | tr "\n" " " >> $RunXMacrosDir/simulation_PEC.xmacro
+		echo "scale=2 ; $k/100 " | bc | tr "\n" "," >> $RunXmacrosDir/simulation_PEC.xmacro
+		echo "" | tr "\n" " " >> $RunXmacrosDir/simulation_PEC.xmacro
 	else 
-		echo "scale=2 ; $k/100 " | bc | tr "\n" "]" >> $RunXMacrosDir/simulation_PEC.xmacro
-		echo " " >> $RunXMacrosDir/simulation_PEC.xmacro
+		echo "scale=2 ; $k/100 " | bc | tr "\n" "]" >> $RunXmacrosDir/simulation_PEC.xmacro
+		echo " " >> $RunXmacrosDir/simulation_PEC.xmacro
 	fi
 done
 
@@ -89,18 +89,18 @@ fi
 
 if [ $CURVED -eq 0]; then
     if [ $NSECTIONS -eq 1 ]; then
-        cat simulationPECmacroskeleton_GPU.txt >> $RunXMacrosDir/simulation_PEC.xmacro 
-        cat simulationPECmacroskeleton2_GPU.txt >> $RunXMacrosDir/simulation_PEC.xmacro
+        cat simulationPECmacroskeleton_GPU.txt >> $RunXmacrosDir/simulation_PEC.xmacro 
+        cat simulationPECmacroskeleton2_GPU.txt >> $RunXmacrosDir/simulation_PEC.xmacro
     else
-        cat simulationPECmacroskeleton_Sep.txt >> $RunXMacrosDir/simulation_PEC.xmacro
-        cat simulationPECmacroskeleton2_Sep.txt >> $RunXMacrosDir/simulation_PEC.xmacro
+        cat simulationPECmacroskeleton_Sep.txt >> $RunXmacrosDir/simulation_PEC.xmacro
+        cat simulationPECmacroskeleton2_Sep.txt >> $RunXmacrosDir/simulation_PEC.xmacro
     fi
 else
-    cat simulationPECmacroskeleton_curved.txt >> $RunXMacrosDir/simulation_PEC.xmacro
-    cat simulationPECmacroskeleton2_curved.txt >> $RunXMacrosDir/simulation_PEC.xmacro
+    cat simulationPECmacroskeleton_curved.txt >> $RunXmacrosDir/simulation_PEC.xmacro
+    cat simulationPECmacroskeleton2_curved.txt >> $RunXmacrosDir/simulation_PEC.xmacro
 fi
 
-sed -i "s+fileDirectory+${WorkingDir}/Generation_Data+" $RunXMacrosDir/simulation_PEC.xmacro
+sed -i "s+fileDirectory+${WorkingDir}/Generation_Data+" $RunXmacrosDir/simulation_PEC.xmacro
 
 if [[ $gen -ne 0 && $i -eq 1 ]]
 then
@@ -110,7 +110,7 @@ fi
 
 module load xfdtd/7.10.2.3
 
-xfdtd $XFProj --execute-macro-script=$RunXMacrosDir/simulation_PEC.xmacro || true  
+xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/simulation_PEC.xmacro || true  
 
 cd $WorkingDir 
 

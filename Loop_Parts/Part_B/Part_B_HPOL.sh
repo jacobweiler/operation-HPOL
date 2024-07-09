@@ -15,7 +15,7 @@ gen=$3
 indiv=$4
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
-mkdir -m777 $RunDir/Plots/${gen}
+mkdir -m777 $RunDir/Antenna_Images/${gen}
 
 # Delete Simulation directories if they exist
 for i in $(seq 1 $XFCOUNT); do
@@ -34,30 +34,31 @@ fi
 
 chmod -R 777 $XmacrosDir 2> /dev/null
 
-#get rid of the simulation_PEC.xmacro that already exists
-rm -f $RunXMacrosDir/simulation_PEC.xmacro
+cd $XmacrosDir
 
+#get rid of the simulation_PEC.xmacro that already exists
+rm -f $RunXacrosDir/simulation_PEC.xmacro
 
 # Create the simulation_PEC.xmacro
-echo "var NPOP = $NPOP;" > $RunXMacrosDir/simulation_PEC.xmacro
-echo "var indiv = $indiv;" >> $RunXMacrosDir/simulation_PEC.xmacro
-echo "var gen = $gen;" >> $RunXMacrosDir/simulation_PEC.xmacro
-echo "var workingdir = \"$WorkingDir\";" >> $RunXMacrosDir/simulation_PEC.xmacro
-echo "var RunName = \"$RunName\";" >> $RunXMacrosDir/simulation_PEC.xmacro
-echo "var freq_start = $FreqStart;" >> $RunXMacrosDir/simulation_PEC.xmacro
-echo "var freq_step = $FreqStep;" >> $RunXMacrosDir/simulation_PEC.xmacro
-echo "var freqCoefficients = $FREQS;" >> $RunXMacrosDir/simulation_PEC.xmacro
+echo "var NPOP = $NPOP;" > $RunXmacrosDir/simulation_PEC.xmacro
+echo "var indiv = $indiv;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var gen = $gen;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var workingdir = \"$WorkingDir\";" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var RunName = \"$RunName\";" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var freq_start = $FreqStart;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var freq_step = $FreqStep;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var freqCoefficients = $FREQS;" >> $RunXmacrosDir/simulation_PEC.xmacro
 
-cat headerHPOL.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat functioncallsHPOL.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat build_hpol.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat CreatePEC.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat CreateAntennaSource.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat CreateGrid.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat CreateSensors.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat CreateAntennaSimulationData.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat QueueSimulation.js >> $RunXMacrosDir/simulation_PEC.xmacro
-cat MakeImage.js >> $RunXMacrosDir/simulation_PEC.xmacro
+cat headerHPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat functioncallsHPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat build_hpol.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat CreatePEC.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat CreateAntennaSource.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat CreateGrid.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat CreateSensors.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat CreateAntennaSimulationData.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat QueueSimulation.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat MakeImage.js >> $RunXmacrosDir/simulation_PEC.xmacro
 
 # Remove the extra simulations
 if [[ $gen -ne 0 && $i -eq 1 ]]
@@ -67,20 +68,10 @@ then
 fi
 
 # Run XF simulation PEC
-echo
-echo
-echo 'Opening XF user interface...'
-echo '*** Please remember to save the project with the same name as RunName! ***'
-echo
-echo '1. Import and run simulation_PEC.xmacro'
-echo '2. Import and run output.xmacro'
-echo '3. Close XF'
 
-module load xfdtd/7.10.2.3
+xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/simulation_PEC.xmacro || true
 
-xfdtd $XFProj --execute-macro-script=$RunXMacrosDir/simulation_PEC.xmacro || true
-
-chmod -R 775 $WorkingDir/../Xmacros 2> /dev/null
+chmod -R 775 $XmacrosDir 2> /dev/null
 
 # Submit the Batch XF Job to solve the simulations
 cd $WorkingDir
@@ -96,11 +87,11 @@ fi
 scancel -n ${RunName}
 
 # Numbers through testing
-if [ $SingleBatch -eq 1 ]
-then
+if [ $SingleBatch -eq 1 ]; then
 	XFCOUNT=$batch_size
 	job_time="15:00:00"
 else
+	XFCOUNT=$NPOP
 	job_time="04:00:00"
 fi
 

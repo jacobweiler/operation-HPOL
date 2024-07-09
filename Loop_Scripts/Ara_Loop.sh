@@ -13,11 +13,18 @@
 ################################################################################################################################################
 
 ################# Load Modules #################################################################################################################
-module load python/3.6-conda5.2
+module load python/3.7-2019.10
+module load xfdtd/7.10.2.3
+
+#source $WorkingDir/Environments/araenv.sh
+#source $WorkingDir/Environments/new_root_setup.sh
+#source /cvmfs/ara.opensciencegrid.org/trunk/centos7/setup.sh
 
 ############### Initialize Run Variables #######################################################################################################
 RunName=$1   	## Unique id of the run
+
 setupfile="${2:-setup.sh}"
+manual_override="${3:-0}"
 WorkingDir=$(pwd)
 RunDir=$WorkingDir/Run_Outputs/$RunName
 
@@ -26,11 +33,7 @@ mkdir -m777 $WorkingDir/saveStates 2> /dev/null
 
 echo "Setup file is ${setupfile}"
 
-source $WorkingDir/Environments/araenv.sh
-source $WorkingDir/Environments/new_root_setup.sh
-source /cvmfs/ara.opensciencegrid.org/trunk/centos7/setup.sh
-
-######## SAVE STATE #################################################################################################################################
+######## SAVE STATE + SETUP #################################################################################################################################
 saveStateFile="${RunName}.savestate.txt"
 
 echo "${saveStateFile}"
@@ -42,21 +45,24 @@ if ! [ -f "saveStates/${saveStateFile}" ]; then
 	echo "1" >> saveStates/${saveStateFile}
 	chmod -R 777 saveStates/${saveStateFile}
 
-	mkdir -m777 $WorkingDir/RunData/$RunName
+	mkdir -m777 $RunDir
 
-	cp $WorkingDir/$setupfile $WorkingDir/RunData/$RunName/setup.sh
-	cp $WorkingDir/RunData/$RunName/setup.sh $WorkingDir/RunData/$RunName/settings.py
-	XFProj=$WorkingDir/RunData/${RunName}/${RunName}.xf
+	cp $WorkingDir/$setupfile $RunDir/setup.sh
+
+	XFProj=$RunDir/${RunName}.xf
 	XmacrosDir=$WorkingDir/Xmacros
-	RunXMacrosDir=$RunDir/XMacros 
+	RunXmacrosDir=$RunDir/Xmacros 
     AraSimExec="/fs/ess/PAS1960/BiconeEvolutionOSC/AraSim" 
-	echo "XFProj=${XFProj}" >> $WorkingDir/RunData/$RunName/setup.sh
-	echo "XmacrosDir=${XmacrosDir}" >> $WorkingDir/RunData/$RunName/setup.sh
-    echo "AraSimExec=${AraSimExec}" >> $WorkingDir/RunData/$RunName/setup.sh
-	echo "RunXMacrosDir=${RunXMacrosDir}" >> $RunDir/setup.sh
-else
-	source $RunDir/setup.sh
+
+	echo "XFProj=${XFProj}" >> $RunDir/setup.sh
+	echo "XmacrosDir=${XmacrosDir}" >> $RunDir/setup.sh
+    echo "AraSimExec=${AraSimExec}" >> $RunDir/setup.sh
+	echo "RunXmacrosDir=${RunXmacrosDir}" >> $RunDir/setup.sh
+	echo "RunDir=${RunDir}" >> $RunDir/setup.sh
 fi
+
+source $RunDir/setup.sh
+
 ##################### THE LOOP ###########################################################################################################
 ## Read in the saveState file ##
 InitialGen=$(sed '1q;d' saveStates/${saveStateFile})
@@ -65,13 +71,15 @@ indiv=$(sed '3q;d' saveStates/${saveStateFile})
 echo "${InitialGen}"
 echo "${state}"
 echo "${indiv}"
+echo ""
 
 for gen in `seq $InitialGen $TotalGens`; do
-	if [[ $gen -eq 0 && $state -eq 0 ]]; then # New Run
+	if [[ $gen -eq 0 && $state -eq 0 ]]; then
         if [ $manual_override -eq 0 ]; then
             read -p "Starting generation ${gen} at location ${state}. Press any key to continue... " -n1 -s
+			echo ""
 		fi
-		# Make the run name directory
+		# Make the run name directories
 		mkdir -m777 $RunDir/AraSimFlags
 		mkdir -m777 $RunDir/AraSimConfirmed
 		mkdir -m777 $RunDir/GPUFlags
@@ -84,7 +92,6 @@ for gen in `seq $InitialGen $TotalGens`; do
 		mkdir -m777 $RunDir/Root_Files
 		mkdir -m777 $RunDir/txt_files
 		mkdir -m777 $RunDir/Xmacros
-		head -n 53 Loop_Scripts/Asym_XF_Loop.sh | tail -n 33 > $RunDir/run_details.txt
 		# Create the run's date and save it in the run's directory
 		python Data_Generators/dateMaker.py
 		mv "runDate.txt" "$RunDir/" -f
@@ -108,7 +115,7 @@ for gen in `seq $InitialGen $TotalGens`; do
 
 	## Part B1 ##
 	if [ $state -eq 2 ]; then
-        if [ $antenna == "VPOL"]; then
+        if [ $antenna == "VPOL" ]; then
             ./Loop_Parts/Part_B/Part_B_VPOL.sh $WorkingDir $RunName $gen $indiv
         elif [ $antenna == "HPOL" ]; then
             ./Loop_Parts/Part_B/Part_B_HPOL.sh $WorkingDir $RunName $gen $indiv
@@ -208,7 +215,7 @@ for gen in `seq $InitialGen $TotalGens`; do
 done
 
 cp generationDNA.csv "$WorkingDir"/Run_Outputs/$RunName/FinalGenerationParameters.csv
-mv runData.csv Antenna_Performance_Metric
+#mv runData.csv Antenna_Performance_Metric
 
 #########################################################################################################################
 ###Moving the Veff AraSim output for the actual ARA bicone into the $RunName directory so this data isn't lost in     ###

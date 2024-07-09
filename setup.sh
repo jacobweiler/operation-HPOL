@@ -13,7 +13,7 @@ num_keys=4			## how many XF keys we are letting this run use
 database_flag=0			## 0 if not using the database, 1 if using the database
 DEBUG_MODE=0			## 1 for testing (ex: send specific seeds), 0 for real runs
 ########### ANTENNA PARAMS ##########################################################################################
-antenna="VPOL"             ## This is the type of antenna we are evolving. Options are "VPOL" or "HPOL" 
+antenna="HPOL"             ## This is the type of antenna we are evolving. Options are "VPOL" or "HPOL" 
 ############## VPOL PARAMS ##########################################################################################
 RADIUS=0			## If 1, radius is asymmetric. If 0, radius is symmetric		
 LENGTH=0			## If 1, length is asymmetric. If 0, length is symmetric
@@ -26,13 +26,13 @@ NSECTIONS=1 			## The number of chromosomes
 ############## HPOL PARAMS #########################################################################################
 # Not sure what HPOL needs atm
 ############ GA #####################################################################################################
-REPRODUCTION=3			## Number (not fraction!) of individuals formed through reproduction
-CROSSOVER=36			## Number (not fraction!) of individuals formed through crossover
-MUTATION=25			## Probability of mutation (divided by 100)
-SIGMA=6				## Standard deviation for the mutation operation (divided by 100)
-ROULETTE=8			## Percent of individuals selected through roulette (divided by 10)
-TOURNAMENT=2			## Percent of individuals selected through tournament (divided by 10)
-RANK=0				## Percent of individuals selected through rank (divided by 10)
-ELITE=0				## Elite function on/off (1/0)
+REPRODUCTION=0.1			## Percent going through reproduction
+CROSSOVER=0.4			## Percent going through Crossover
+MUTATION=0.5			    ## Percent going through Mutation
+SIGMA=0.05			    ## Standard deviation for the mutation operation 
+ROULETTE=0.8			    ## Percent of individuals selected through roulette 
+TOURNAMENT=0.2			## Percent of individuals selected through tournament
+RANK=0				    ## Percent of individuals selected through rank 
+ELITE=0				    ## Elite function on/off (1/0)
 ############## JOB SUBMISSION #######################################################################################
 SingleBatch=0       ## 1 to submit a single batch for XF jobs (each job running for n antennas)
