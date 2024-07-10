@@ -49,6 +49,13 @@ echo "var freq_start = $FreqStart;" >> $RunXmacrosDir/simulation_PEC.xmacro
 echo "var freq_step = $FreqStep;" >> $RunXmacrosDir/simulation_PEC.xmacro
 echo "var freqCoefficients = $FREQS;" >> $RunXmacrosDir/simulation_PEC.xmacro
 
+if [[ $gen -eq 0 && $indiv -eq 1 ]]
+then
+	echo "if(indiv==1){" >> $RunXmacrosDir/simulation_PEC.xmacro
+	echo "App.saveCurrentProjectAs(\"$RunDir/$RunName\");" >> $RunXmacrosDir/simulation_PEC.xmacro
+	echo "}" >> $RunXmacrosDir/simulation_PEC.xmacro
+fi
+
 cat headerHPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat functioncallsHPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat build_hpol.js >> $RunXmacrosDir/simulation_PEC.xmacro

@@ -51,5 +51,4 @@ cat shortened_outputmacroskeleton.txt >> $RunXmacrosDir/output.xmacro
 
 sed -i "s+fileDirectory+${WorkingDir}+" $RunXmacrosDir/output.xmacro
 
-module load xfdtd/7.10.2.3
 xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/output.xmacro || true --splash=false

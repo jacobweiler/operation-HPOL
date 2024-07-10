@@ -13,3 +13,8 @@ var freq = [];
 for (var i = 0; i < freqCoefficients; i++) {
     freq.push(freq_start + i * freq_step);
 }
+
+var antennaLines = 0 // This is how many lines come before the antenna data
+var file = new File(path);
+file.open(1);
+var generationDNA = file.readAll();

@@ -83,7 +83,8 @@ for gen in `seq $InitialGen $TotalGens`; do
 		mkdir -m777 $RunDir/AraSimFlags
 		mkdir -m777 $RunDir/AraSimConfirmed
 		mkdir -m777 $RunDir/GPUFlags
-		mkdir -m777 $RunDir/XFOutputs
+		mkdir -m777 $RunDir/XF_Outputs
+		mkdir -m777 $RunDir/XF_Errors
 		mkdir -m777 $RunDir/uan_files
 		mkdir -m777 $RunDir/Plots
 		mkdir -m777 $RunDir/Antenna_Images

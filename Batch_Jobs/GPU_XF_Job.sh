@@ -13,11 +13,10 @@
 #SBATCH --error=Run_Outputs/%x/XF_Errors/XF_%a.error
 ##SBATCH --mem-per-gpu=178gb
 
-## make sure we're in the right directory
-cd $WorkingDir
-
 module load xfdtd/7.10.2.3
 module load cuda
+
+source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 ## We need to get the individual number
 ## This will be based on the number in the array
@@ -47,6 +46,6 @@ indiv_dir=$indiv_dir_parent/Run0001
 cd $indiv_dir
 xfsolver --use-xstream=true --xstream-use-number=2 --num-threads=2 -v
 
-cd $WorkingDir
+cd $WorkingDir/Run_Outputs/$RunName/GPUFlags
 
-echo "The GPU job is done!" >> $RunDir/GPUFlags/Part_B_GPU_Flag_${individual_number}.txt 
+echo "The GPU job is done!" >> Part_B_GPU_Flag_${individual_number}.txt 
