@@ -52,7 +52,7 @@ if ! [ -f "saveStates/${saveStateFile}" ]; then
 	XFProj=$RunDir/${RunName}.xf
 	XmacrosDir=$WorkingDir/Xmacros
 	RunXmacrosDir=$RunDir/Xmacros 
-    AraSimExec="/fs/ess/PAS1960/BiconeEvolutionOSC/AraSim" 
+    AraSimExec="/users/PAS1977/jacobweiler/GENETIS/UpdateAraSim" 
 
 	echo "XFProj=${XFProj}" >> $RunDir/setup.sh
 	echo "XmacrosDir=${XmacrosDir}" >> $RunDir/setup.sh

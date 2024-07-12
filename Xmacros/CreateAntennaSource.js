@@ -38,8 +38,8 @@ function CreateAntennaSource(zpos_ground, zpos_feed)
     component.name = "Source";
     component.setAsPort( true );
     // Define the endpoints of this feed - these are defined in world position, but you can also attach them to edges, faces, etc.
-    var coordinate1 = new CoordinateSystemPosition( 0, 0, zpos_ground );
-    var coordinate2 = new CoordinateSystemPosition( 0, 0, zpos_feed );
+    var coordinate1 = new CoordinateSystemPosition( 0 + units, 0 + units, zpos_ground + units);
+    var coordinate2 = new CoordinateSystemPosition( 0 + units, 0 + units, zpos_feed + units);
     component.setCircuitComponentDefinition( feedInList );
     component.setEndpoint1( coordinate1 );
     component.setEndpoint2( coordinate2 );

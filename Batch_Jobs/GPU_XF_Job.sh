@@ -20,32 +20,66 @@ source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 ## We need to get the individual number
 ## This will be based on the number in the array
-individual_number=$((${gen}*${NPOP}+${SLURM_ARRAY_TASK_ID}))
 
-## Based on the individual number, we need the right parent directory
-## This involves checking the individual number being submitted
-## This is complicated--the individual number should be the number in the job array
-## To do this, we'll have to call the array number (see above)
-if [ $individual_number -lt 10 ]
-then
-	indiv_dir_parent=$XFProj/Simulations/00000$individual_number/
-elif [[ $individual_number -ge 10 && $individual_number -lt 100 ]]
-then
-	indiv_dir_parent=$XFProj/Simulations/0000$individual_number/
-elif [[ $individual_number -ge 100 && $individual_number -lt 1000 ]]
-then
-	indiv_dir_parent=$XFProj/Simulations/000$individual_number/
-elif [ $individual_number -ge 1000 ]
-then
-	indiv_dir_parent=$XFProj/Simulations/00$individual_number/
-fi
+indiv_in_pop=$SLURM_ARRAY_TASK_ID
+XFProj=$WorkingDir/Run_Outputs/$RunName/$RunName.xf
 
-## Now we need to get into the Run0001 directory inside the parent directory
-indiv_dir=$indiv_dir_parent/Run0001
+sleep $indiv_in_pop
+# If we run a single batch of jobs, we run until we hit NPOP
+# Otherwise, run once
+
+
+
+individual_number=$((${gen}*${NPOP}+${indiv_in_pop}))
+
+indiv_dir=$XFProj/Simulations/$(printf "%06d" $individual_number)/Run0001
 
 cd $indiv_dir
-xfsolver --use-xstream=true --xstream-use-number=2 --num-threads=2 -v
+echo "We are in the directory: $indiv_dir"
+
+pwd
+ls
+
+licensecheck=False
+simulationcheck=False
+while [ $simulationcheck = False ] && [ $licensecheck = False ]
+do
+	echo "Running XF solver"
+	cd $indiv_dir
+	xfsolver --use-xstream=true --xstream-use-number=2 --num-threads=2 -v
+	
+	# Check for unstable calculation in xsolver
+	# If unstable, then we need to rerun the simulation
+	cd $WorkingDir/Run_Outputs/$RunName/XF_Outputs
+	# Adding in check for license error and rerunning until it finds one 
+	if [ $(grep -c "Unable to check out license." XF_${SLURM_ARRAY_TASK_ID}.output) -gt 0 ]
+	then
+		echo "License error detected. Terminating XFSolver."
+		echo "Rerunning XFSolver"
+		cp XF_${SLURM_ARRAY_TASK_ID}.output XF_${SLURM_ARRAY_TASK_ID}_${gen}_LICENSE_ERROR.output
+		echo " " > XF_${SLURM_ARRAY_TASK_ID}.output
+	else
+		echo "Solver finished"
+		licensecheck=True
+	fi
+	#check the XF_${indiv_in_pop}.output file for "Unstable calculation detected. Terminating XFSolver."
+	# if it's there, then we need to rerun the simulation
+	if [ $(grep -c "Unstable calculation detected. Terminating XFSolver." XF_${SLURM_ARRAY_TASK_ID}.output) -gt 0 ]
+	then
+		echo "Unstable calculation detected. Terminating XFSolver."
+		echo "Rerunning simulation"
+		cp XF_${SLURM_ARRAY_TASK_ID}.output ${gen}_XF_${SLURM_ARRAY_TASK_ID}_ERROR.output
+		echo " " > XF_${SLURM_ARRAY_TASK_ID}.output
+	else
+		echo "Simulation finished"
+		simulationcheck=True
+	fi
+done
+
+echo "finished XF solver"
 
 cd $WorkingDir/Run_Outputs/$RunName/GPUFlags
+
+mkdir -m775 $WorkingDir/Run_Outputs/$RunName/uan_files/${gen}_uan_files/$indiv_in_pop 2> /dev/null
 
 echo "The GPU job is done!" >> Part_B_GPU_Flag_${individual_number}.txt 

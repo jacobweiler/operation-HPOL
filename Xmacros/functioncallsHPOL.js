@@ -44,7 +44,7 @@ for(var i = indiv - 1; i < NPOP; i++)
     App.getActiveProject().getGeometryAssembly().clear();
     CreatePEC();
     build_hpol(plate_num, rad, thick, arc, height);
-    CreateAntennaSource(zpos_ground, zpos_feed); 
+    CreateAntennaSource((height/2) - feed_dist, (height/2) + feed_dist); 
     CreateGrid();
     CreateSensors();
     CreateAntennaSimulationData();

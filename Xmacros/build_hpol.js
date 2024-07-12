@@ -1,13 +1,23 @@
 // build HPOL antenna (units not working on this script, default units in cm)
 function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_height) 
 {
-    // Variables
-    //var antenna_height = (4);      //Height of the extrude for the plates.
-    //var num_plates = (4);           // Number of plates in antenna
-    //var plate_thickness = (.02);	   //this # needs to add to radius to equal 1. (outer radius - inner radius)
-    //var radius = (1);     //larger # here makes thinner cover plates. (inner radius)
-    //var arclength = (2.5);        //arclength Makes the arc legnth PI/arclength)
+    // Scaling the variables because you can't input the units in this method of building (for some reason)
 	
+    if (units == " cm"){
+        scale = (1/100);
+    }
+    else if (units == " mm"){
+        scale = (1/1000);
+    }
+    else if (units == " m"){
+        scale = 1;
+    } 
+    // Scaling and other variables for the antenna
+    var radius = radius * scale;
+    var plate_thickness = plate_thickness * scale;
+    var antenna_height = antenna_height * scale;
+    var half_height = antenna_height/2;
+    var feed_distance = feed_dist * scale; 
 	// Start by creating a new pattern
 	var ePattern = new EllipticalPattern();
 	ePattern.setCenter(new CoordinateSystemPosition(0,0,0));
@@ -29,32 +39,32 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
 	var line2 = new LawEdge(""+x_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+y_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","0",0,Math.PI);//Left line
 	
 	//Building the lower set of wires:
-    var wire1 = new LawEdge("(("+radius+")+("+plate_thickness+"))*u/("+Math.PI+")","0","(2-0.02)",0,Math.PI); //line in x from (0,PI) with y=0 & z=0
-    var wire2 = new LawEdge("("+radius+" +"+plate_thickness+")*u/("+Math.PI+")","0.02","(2-0.02)",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=0
-    var wire3 = new LawEdge("0","(0.02)*u/("+Math.PI+")","(2-0.02)",0,Math.PI);
-    var wire4 = new LawEdge("(("+radius+")+("+plate_thickness+"))","(0.02)*u/("+Math.PI+")","(2-0.02)",0,Math.PI);
+    var wire1 = new LawEdge("(("+radius+")+("+plate_thickness+"))*u/("+Math.PI+")","0","("+half_height+ " - " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0 & z=0
+    var wire2 = new LawEdge("("+radius+" +"+plate_thickness+")*u/("+Math.PI+")",""+plate_thickness+"","("+half_height+ " - " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=0
+    var wire3 = new LawEdge("0","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
+    var wire4 = new LawEdge("(("+radius+")+("+plate_thickness+"))","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
 
     //Building the top set of wires:
-    var twire1 = new LawEdge("(("+radius+")+("+plate_thickness+"))*u/("+Math.PI+")","0","(2+0.02)",0,Math.PI); //line in x from (0,PI) with y=0 & z=2.02
-    var twire2 = new LawEdge("("+radius+" +"+plate_thickness+")*u/("+Math.PI+")","0.02","(2+0.02)",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=2.02
-    var twire3 = new LawEdge("0","(0.02)*u/("+Math.PI+")","(2+0.02)",0,Math.PI);
-    var twire4 = new LawEdge("("+radius+" + "+plate_thickness+")","(0.02)*u/("+Math.PI+")","(2+0.02)",0,Math.PI);
+    var twire1 = new LawEdge("(("+radius+")+("+plate_thickness+"))*u/("+Math.PI+")","0","("+half_height+ " + " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0 & z=2.02
+    var twire2 = new LawEdge("("+radius+" +"+plate_thickness+")*u/("+Math.PI+")",""+plate_thickness+"","("+half_height+ " + " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=2.02
+    var twire3 = new LawEdge("0","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " + " +feed_distance+")",0,Math.PI);
+    var twire4 = new LawEdge("("+radius+" + "+plate_thickness+")","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " + " +feed_distance+")",0,Math.PI);
 
     var arcx_connect = Math.cos(rotation);   //Used to scale the arclegnth of the connecting wires.
     var arcy_connect = Math.sin(rotation);   //Used to scale the arclegnth of the connecting wires.
 
     //Building the lower set of wires to connect to the cover plates:
     //We are using LawEdge to draw the edges of a 2D shape that will later be extruded into 3D.
-    var connect1 = new LawEdge("("+radius+" + "+plate_thickness+")*cos(u)","("+radius+" + "+plate_thickness+")*sin(u)","2-0.02",rotation,Math.PI/2)
-    var connect2 = new LawEdge("("+radius+")*cos(u)","("+radius+")*sin(u)","2-0.02",rotation,Math.PI/2);
-    var connect4 = new LawEdge("0","("+radius+")+("+plate_thickness+")*u/("+Math.PI+")","2-0.02",0,Math.PI);
-    var connect3 = new LawEdge(""+arcx_connect+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+arcy_connect+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","2-0.02",0,Math.PI);
+    var connect1 = new LawEdge("("+radius+" + "+plate_thickness+")*cos(u)","("+radius+" + "+plate_thickness+")*sin(u)","("+half_height+ " - " +feed_distance+")",rotation,Math.PI/2)
+    var connect2 = new LawEdge("("+radius+")*cos(u)","("+radius+")*sin(u)","("+half_height+ " - " +feed_distance+")",rotation,Math.PI/2);
+    var connect4 = new LawEdge("0","("+radius+")+("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
+    var connect3 = new LawEdge(""+arcx_connect+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+arcy_connect+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+half_height+ " - " +feed_distance+")",0,Math.PI);
 
     //Building the top set of wires to connect to the cover plates:
-    var tconnect1 = new LawEdge("("+radius+" + "+plate_thickness+")*cos(u)","("+radius+" + "+plate_thickness+")*sin(u)","2+0.02",x_rotation,rotation);
-    var tconnect2 = new LawEdge("("+radius+")*cos(u)","("+radius+")*sin(u)","2+0.02",x_rotation,rotation);
-    var tconnect4 = new LawEdge(""+x_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+y_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","2+0.02",0,Math.PI);
-    var tconnect3 = new LawEdge("("+arcx_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+arcy_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","2+0.02",0,Math.PI);
+    var tconnect1 = new LawEdge("("+radius+" + "+plate_thickness+")*cos(u)","("+radius+" + "+plate_thickness+")*sin(u)","("+half_height+ " + " +feed_distance+")",x_rotation,rotation);
+    var tconnect2 = new LawEdge("("+radius+")*cos(u)","("+radius+")*sin(u)","("+half_height+ " + " +feed_distance+")",x_rotation,rotation);
+    var tconnect4 = new LawEdge(""+x_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+y_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+half_height+ " + " +feed_distance+")",0,Math.PI);
+    var tconnect3 = new LawEdge("("+arcx_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+arcy_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+half_height+ " + " +feed_distance+")",0,Math.PI);
 
     //This is where we set the LawEdge lines into a shape (Sketch)
     var semicircle1 = new Sketch();
@@ -79,10 +89,10 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
 	
     //Now we Extrude the Sketch (which still has a cover) in the form of (Sketch , distance to extrude , Direction). Here we are setting the CoordinateSystemDirection to (0,0,1) for the z direction. 
     var extrudesemi = new Extrude(semicircle1,antenna_height,CoordinateSystemDirection(0,0,1)); //sketch, sketch thickness to extrude, coordinates
-    var extrudewire = new Extrude(wire,.02,CoordinateSystemDirection(0,0,1));
-    var extrudetopwire = new Extrude(topwire,.02,CoordinateSystemDirection(0,0,1));
-    var extrudeconnect = new Extrude(connect,.02,CoordinateSystemDirection(0,0,1));
-    var extrudetconnect = new Extrude(tconnect,.02,CoordinateSystemDirection(0,0,1));
+    var extrudewire = new Extrude(wire,plate_thickness,CoordinateSystemDirection(0,0,1));
+    var extrudetopwire = new Extrude(topwire,plate_thickness,CoordinateSystemDirection(0,0,1));
+    var extrudeconnect = new Extrude(connect,plate_thickness,CoordinateSystemDirection(0,0,1));
+    var extrudetconnect = new Extrude(tconnect,plate_thickness,CoordinateSystemDirection(0,0,1));
 
     //Here we are creating a Recipe to assemble multiple functions to our shapes. Cover, Extrude, and ePattern.
     var rsemi = new Recipe();

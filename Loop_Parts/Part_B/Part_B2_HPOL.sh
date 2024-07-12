@@ -44,11 +44,10 @@ rm -f $RunXmacrosDir/output.xmacro
 echo "var NPOP = $NPOP;" >> $RunXmacrosDir/output.xmacro
 echo "var gen = \"$gen\";" >> $RunXmacrosDir/output.xmacro
 echo "var WorkingDir = \"$WorkingDir\";" >> $RunXmacrosDir/output.xmacro
-echo "var RunDir = \"$WorkingDir/RunData/$RunName\";" >> $RunXmacrosDir/output.xmacro
-echo "for (var k = $(($gen*$NPOP + 1)); k <= $(($gen*$NPOP+$NPOP)); k++){" >> $RunXmacrosDir/output.xmacro
+echo "var RunDir = \"$WorkingDir/Run_Outputs/$RunName\";" >> $RunXmacrosDir/output.xmacro
 
-cat shortened_outputmacroskeleton.txt >> $RunXmacrosDir/output.xmacro
+cat $XmacrosDir/shortened_outputmacroskeleton.js >> $RunXmacrosDir/output.xmacro
 
-sed -i "s+fileDirectory+${WorkingDir}+" $RunXmacrosDir/output.xmacro
+mkdir -m777 $RunDir/uan_files/${gen}
 
 xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/output.xmacro || true --splash=false

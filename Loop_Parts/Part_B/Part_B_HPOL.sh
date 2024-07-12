@@ -39,6 +39,10 @@ cd $XmacrosDir
 #get rid of the simulation_PEC.xmacro that already exists
 rm -f $RunXacrosDir/simulation_PEC.xmacro
 
+if [ $gen -eq 0 ]; then
+	echo "App.saveCurrentProjectAs(\"$WorkingDir/Run_Outputs/$RunName/$RunName\");" >> $RunXmacrosDir/simulation_PEC.xmacro
+fi
+
 # Create the simulation_PEC.xmacro
 echo "var NPOP = $NPOP;" > $RunXmacrosDir/simulation_PEC.xmacro
 echo "var indiv = $indiv;" >> $RunXmacrosDir/simulation_PEC.xmacro
@@ -48,13 +52,6 @@ echo "var RunName = \"$RunName\";" >> $RunXmacrosDir/simulation_PEC.xmacro
 echo "var freq_start = $FreqStart;" >> $RunXmacrosDir/simulation_PEC.xmacro
 echo "var freq_step = $FreqStep;" >> $RunXmacrosDir/simulation_PEC.xmacro
 echo "var freqCoefficients = $FREQS;" >> $RunXmacrosDir/simulation_PEC.xmacro
-
-if [[ $gen -eq 0 && $indiv -eq 1 ]]
-then
-	echo "if(indiv==1){" >> $RunXmacrosDir/simulation_PEC.xmacro
-	echo "App.saveCurrentProjectAs(\"$RunDir/$RunName\");" >> $RunXmacrosDir/simulation_PEC.xmacro
-	echo "}" >> $RunXmacrosDir/simulation_PEC.xmacro
-fi
 
 cat headerHPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat functioncallsHPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
@@ -67,15 +64,7 @@ cat CreateAntennaSimulationData.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat QueueSimulation.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat MakeImage.js >> $RunXmacrosDir/simulation_PEC.xmacro
 
-# Remove the extra simulations
-if [[ $gen -ne 0 && $i -eq 1 ]]
-then
-	cd $XFProj
-	rm -rf Simulations
-fi
-
 # Run XF simulation PEC
-
 xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/simulation_PEC.xmacro || true
 
 chmod -R 775 $XmacrosDir 2> /dev/null
