@@ -19,13 +19,6 @@ source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 SpecificSeed=32000
 
-cd $WorkingDir
-
-if [ $gen -eq 0 ]; then
-	mkdir -m775 $RunDir/AraSim_Outputs
-	mkdir -m775 $RunDir/AraSim_Errors
-fi
-
 cd "$AraSimExec"
 
 # Let's make sure we're sourcing the right setup file

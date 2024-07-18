@@ -18,19 +18,7 @@ module load cuda
 
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
-## We need to get the individual number
-## This will be based on the number in the array
-
-indiv_in_pop=$SLURM_ARRAY_TASK_ID
-XFProj=$WorkingDir/Run_Outputs/$RunName/$RunName.xf
-
-sleep $indiv_in_pop
-# If we run a single batch of jobs, we run until we hit NPOP
-# Otherwise, run once
-
-
-
-individual_number=$((${gen}*${NPOP}+${indiv_in_pop}))
+individual_number=$((${gen}*${NPOP}+${SLURM_ARRAY_TASK_ID}))
 
 indiv_dir=$XFProj/Simulations/$(printf "%06d" $individual_number)/Run0001
 
@@ -42,8 +30,7 @@ ls
 
 licensecheck=False
 simulationcheck=False
-while [ $simulationcheck = False ] && [ $licensecheck = False ]
-do
+while [ $simulationcheck = False ] && [ $licensecheck = False ]; do
 	echo "Running XF solver"
 	cd $indiv_dir
 	xfsolver --use-xstream=true --xstream-use-number=2 --num-threads=2 -v
@@ -52,8 +39,7 @@ do
 	# If unstable, then we need to rerun the simulation
 	cd $WorkingDir/Run_Outputs/$RunName/XF_Outputs
 	# Adding in check for license error and rerunning until it finds one 
-	if [ $(grep -c "Unable to check out license." XF_${SLURM_ARRAY_TASK_ID}.output) -gt 0 ]
-	then
+	if [ $(grep -c "Unable to check out license." XF_${SLURM_ARRAY_TASK_ID}.output) -gt 0 ];then
 		echo "License error detected. Terminating XFSolver."
 		echo "Rerunning XFSolver"
 		cp XF_${SLURM_ARRAY_TASK_ID}.output XF_${SLURM_ARRAY_TASK_ID}_${gen}_LICENSE_ERROR.output
@@ -62,10 +48,9 @@ do
 		echo "Solver finished"
 		licensecheck=True
 	fi
-	#check the XF_${indiv_in_pop}.output file for "Unstable calculation detected. Terminating XFSolver."
+	#check the XF_${SLURM_ARRAY_TASK_ID}.output file for "Unstable calculation detected. Terminating XFSolver."
 	# if it's there, then we need to rerun the simulation
-	if [ $(grep -c "Unstable calculation detected. Terminating XFSolver." XF_${SLURM_ARRAY_TASK_ID}.output) -gt 0 ]
-	then
+	if [ $(grep -c "Unstable calculation detected. Terminating XFSolver." XF_${SLURM_ARRAY_TASK_ID}.output) -gt 0 ];then
 		echo "Unstable calculation detected. Terminating XFSolver."
 		echo "Rerunning simulation"
 		cp XF_${SLURM_ARRAY_TASK_ID}.output ${gen}_XF_${SLURM_ARRAY_TASK_ID}_ERROR.output
@@ -80,6 +65,6 @@ echo "finished XF solver"
 
 cd $WorkingDir/Run_Outputs/$RunName/GPUFlags
 
-mkdir -m775 $WorkingDir/Run_Outputs/$RunName/uan_files/${gen}_uan_files/$indiv_in_pop 2> /dev/null
+mkdir -m777 $WorkingDir/Run_Outputs/$RunName/uan_files/${gen}_uan_files/$SLURM_ARRAY_TASK_ID 2> /dev/null
 
 echo "The GPU job is done!" >> Part_B_GPU_Flag_${individual_number}.txt 

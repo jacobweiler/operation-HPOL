@@ -60,9 +60,10 @@ else
 fi
 echo "Flag: Successfully Ran GA!"
 
-mkdir -m775 $WorkingDir/Run_Outputs/$RunName/Generation_Data/Generation_${gen}
-cp Generation_Data/generationDNA.csv $WorkingDir/Run_Outputs/$RunName/Generation_Data/Generation_${gen}/${gen}_generationDNA.csv
-mv Generation_Data/generators.csv $WorkingDir/Run_Outputs/${RunName}/Generation_Data/Generation_${gen}/${gen}_generators.csv
+mkdir -m775 $RunDir/Generation_Data/Generation_${gen}
+cp Run_Outputs/generationDNA.csv $RunDir/Generation_Data/Generation_${gen}/${gen}_generationDNA.csv
+mv Run_Outputs/generationDNA.csv $RunDir/Generation_Data/generationDNA.csv
+mv Run_Outputs/generators.csv $WorkingDir/Run_Outputs/${RunName}/Generation_Data/Generation_${gen}/${gen}_generators.csv
 if [ $gen -gt 0 ]; then
-        mv Generation_Data/Parents.csv $WorkingDir/Run_Outputs/${RunName}/Generation_Data/Generation_${gen}/${gen}_parents.csv
+        mv Run_Outputs/Parents.csv $WorkingDir/Run_Outputs/${RunName}/Generation_Data/Generation_${gen}/${gen}_parents.csv
 fi

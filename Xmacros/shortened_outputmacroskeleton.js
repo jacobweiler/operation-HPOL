@@ -1,5 +1,5 @@
-var start = gen * NPOP + 1;
-var end = start + NPOP - 1;
+var start = gen * popsize + 1;
+var end = start + popsize - 1;
 
 for (var k = start; k <= end; k++){
     // if var simNum doesn't exist, create it
@@ -17,7 +17,6 @@ for (var k = start; k <= end; k++){
     var query = new ResultQuery();
     ///////////////////////Get Theta and Phi Gain///////////////
     query.projectId = App.getActiveProject().getProjectDirectory();
-
     Output.println( App.getActiveProject().getProjectDirectory() );
 
     query.runId = "Run0001";
@@ -100,11 +99,17 @@ for (var k = start; k <= end; k++){
         Output.println( "5getCurrentDataSet() : " +
         inputpower.getReasonWhyInvalid() );
     }
-    for (var i = 1; i <= 60; i++){
-        var ind_num = k - (gen * NPOP);
-        var file = RunDir + "/uan_files/" + gen + "_uan_files/" + ind_num + "/";
-        file = file + gen + "_" + ind_num + "_";
-        file = file + (i) + ".uan";
+    var freqCoefficients = 60;
+    for (var i = 1; i <= freqCoefficients; i++){
+        if (typeof node === 'undefined'){
+            var ind_num = k - (gen * popsize);
+            var file = RunDir + "/uan_files/" + gen + "_uan_files/" + ind_num + "/";
+            file = file + gen + "_" + ind_num + "_";
+            file = file + (i) + ".uan";
+        } else {
+            var file = RunDir + "/tempFiles/" + node + "/uan_files/";
+            file = file + "1_1_" + (i) + ".uan";
+        }
         Output.println(file);
         Output.println("thdata: " + thdata );
         Output.println("thphase: " + thphase);

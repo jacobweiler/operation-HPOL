@@ -12,10 +12,9 @@
 #################################################################################################################################################### 
 
 #variables
-$WorkingDir=$1
-$RunName=$2
-$gen=$3
-$indiv=$4
+WorkingDir=$1
+RunName=$2
+gen=$3
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 module load python/3.7-2019.10
@@ -33,6 +32,8 @@ mv *.root $WorkingDir/Run_Outputs/$RunName/Root_Files/Root_Files_${gen}/
 for i in `seq $indiv $NPOP`;do
 	InputFiles="${InputFiles}AraOut_${gen}_${i}.txt " 
 done
+
+cp $WorkingDir/Run_Outputs/$RunName/Generation_Data/${gen}_generationDNA.csv $WorkingDir/Generation_Data/generationDNA.csv
 
 ./fitnessFunction.exe $NPOP $Seeds $ScaleFactor $WorkingDir/Generation_Data/generationDNA.csv $GeoFactor $InputFiles #Here's where we add the flags for the generation
 cp fitnessScores.csv "$WorkingDir"/Run_Outputs/$RunName/${gen}_fitnessScores.csv

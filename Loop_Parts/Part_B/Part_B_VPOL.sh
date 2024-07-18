@@ -23,12 +23,6 @@ gen=$3
 indiv=$4
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
-# Making directories for the XF output and errors
-if [ ${gen} -eq 0 ]; then
-	mkdir -m775 $WorkingDir/Run_Outputs/$RunName/XF_Outputs
-	mkdir -m775 $WorkingDir/Run_Outputs/$RunName/XF_Errors
-fi
-
 # Delete Simulation directories if they exist
 for i in $(seq 1 $XFCOUNT); do
 	individual_number=$(($gen*$XFCOUNT + $i))
@@ -82,12 +76,12 @@ for i in $freqlist; do
 done
 
 if [[ $gen -eq 0 && $indiv -eq 1 ]]; then
-    echo "if(indiv==1){" >> simulation_PEC.xmacro	
-    echo "App.saveCurrentProjectAs(\"$WorkingDir/Run_Outputs/$RunName/$RunName\");" >> $WorkingDir/Run_Outputs/$RunName/simulation_PEC.xmacro
-    echo "}" >> simulation_PEC.xmacro
+    echo "if(indiv==1){" >> $RunXmacrosDir/simulation_PEC.xmacro	
+    echo "App.saveCurrentProjectAs(\"$RunDir/$RunName\");" >> $RunXmacrosDir/simulation_PEC.xmacro
+    echo "}" >> $RunXmacrosDir/simulation_PEC.xmacro
 fi
 
-if [ $CURVED -eq 0]; then
+if [ $CURVED -eq 0 ]; then
     if [ $NSECTIONS -eq 1 ]; then
         cat simulationPECmacroskeleton_GPU.txt >> $RunXmacrosDir/simulation_PEC.xmacro 
         cat simulationPECmacroskeleton2_GPU.txt >> $RunXmacrosDir/simulation_PEC.xmacro
@@ -100,7 +94,7 @@ else
     cat simulationPECmacroskeleton2_curved.txt >> $RunXmacrosDir/simulation_PEC.xmacro
 fi
 
-sed -i "s+fileDirectory+${WorkingDir}/Generation_Data+" $RunXmacrosDir/simulation_PEC.xmacro
+sed -i "s+fileDirectory+${RunDir}/Generation_Data+" $RunXmacrosDir/simulation_PEC.xmacro
 
 if [[ $gen -ne 0 && $i -eq 1 ]]
 then
@@ -108,18 +102,16 @@ then
 	rm -rf Simulations
 fi
 
-module load xfdtd/7.10.2.3
-
 xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/simulation_PEC.xmacro || true  
 
 cd $WorkingDir 
 
-if [ $database_flag -eq 1]; then
+if [ $database_flag -eq 1 ]; then
     # we're going to implement the database
     # this means we want to be able to read a specific list of individuals to run
     # this data will be stored in a file created by the dataAdd.exe
     cd $WorkingDir/Database
-    if [ $NSECTIONS -eq 1]; then 
+    if [ $NSECTIONS -eq 1 ]; then 
         ./dataCheck.exe $NPOP $GenDNA $Database $NewDataFile $RepeatDataFile 3
     else
         ./dataCheck.exe $NPOP $GenDNA $Database $NewDataFile $RepeatDataFile

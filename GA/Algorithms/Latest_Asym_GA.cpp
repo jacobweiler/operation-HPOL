@@ -608,7 +608,7 @@ int main(int argc, char const *argv[])
 void dataWrite(int numChildren, vector<vector<vector<float> > >& varVector, int freq_coeffs, vector<double> freqVector)
 {
   ofstream generationDNA;
-  generationDNA.open("Generation_Data/generationDNA.csv");
+  generationDNA.open("Run_Outputs/generationDNA.csv");
   generationDNA << "Hybrid of Roulette and Tournament -- Thanks to Cal Poly / Jordan Potter" << "\n";
   generationDNA << "Author was David Liu" << "\n";
   generationDNA << "Notable contributors: Julie Rolla, Hannah Hasan, and Adam Blenk" << "\n";

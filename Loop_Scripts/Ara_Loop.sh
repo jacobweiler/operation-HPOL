@@ -54,6 +54,7 @@ if ! [ -f "saveStates/${saveStateFile}" ]; then
 	RunXmacrosDir=$RunDir/Xmacros 
     AraSimExec="/users/PAS1977/jacobweiler/GENETIS/UpdateAraSim" 
 
+	echo "" >> $RunDir/setup.sh
 	echo "XFProj=${XFProj}" >> $RunDir/setup.sh
 	echo "XmacrosDir=${XmacrosDir}" >> $RunDir/setup.sh
     echo "AraSimExec=${AraSimExec}" >> $RunDir/setup.sh
@@ -88,7 +89,8 @@ for gen in `seq $InitialGen $TotalGens`; do
 		mkdir -m777 $RunDir/uan_files
 		mkdir -m777 $RunDir/Plots
 		mkdir -m777 $RunDir/Antenna_Images
-		mkdir -m777 $RunDir/AraOut
+		mkdir -m777 $RunDir/AraSim_Outputs
+		mkdir -m777 $RunDir/AraSim_Errors
 		mkdir -m777 $RunDir/Generation_Data
 		mkdir -m777 $RunDir/Root_Files
 		mkdir -m777 $RunDir/txt_files
@@ -147,7 +149,7 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part C ##
 	if [ $state -eq 4 ]; then
         indiv=1
-        ./Loop_Parts/Part_C/Part_C.sh $WorkingDir $RunName $gen
+        ./Loop_Parts/Part_C/Part_C.sh $WorkingDir $RunName $gen $indiv
 		state=5
 
 		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv

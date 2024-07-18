@@ -10,8 +10,9 @@
 WorkingDir=$1
 RunName=$2
 gen=$3
+indiv=$4
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
-cd $WorkingDIr
+cd $WorkingDir
 
 python Antenna_Performance_Metric/XFintoARA.py $NPOP $WorkingDir $RunName $gen $indiv

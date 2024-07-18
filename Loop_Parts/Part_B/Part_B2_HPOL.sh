@@ -37,17 +37,21 @@ rm -f $WorkingDir/Run_Outputs/$RunName/GPUFlags/*
 echo $flag_files
 echo "Done!"
 
+cd $WorkingDir
+
+mkdir -m775 $RunDir/uan_files/${gen}_uan_files 2> /dev/null
+
 # Removing Old output xmacro
 rm -f $RunXmacrosDir/output.xmacro
 
 # Writing new xmacro
-echo "var NPOP = $NPOP;" >> $RunXmacrosDir/output.xmacro
+echo "Writing output.xmacro!" 
+
+echo "var popsize = $NPOP;" >> $RunXmacrosDir/output.xmacro
 echo "var gen = \"$gen\";" >> $RunXmacrosDir/output.xmacro
 echo "var WorkingDir = \"$WorkingDir\";" >> $RunXmacrosDir/output.xmacro
-echo "var RunDir = \"$WorkingDir/Run_Outputs/$RunName\";" >> $RunXmacrosDir/output.xmacro
+echo "var RunDir = \"$RunDir\";" >> $RunXmacrosDir/output.xmacro
 
 cat $XmacrosDir/shortened_outputmacroskeleton.js >> $RunXmacrosDir/output.xmacro
-
-mkdir -m777 $RunDir/uan_files/${gen}
 
 xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/output.xmacro || true --splash=false

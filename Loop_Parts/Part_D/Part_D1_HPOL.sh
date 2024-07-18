@@ -21,11 +21,6 @@ source /cvmfs/ara.opensciencegrid.org/trunk/centos7/setup.sh
 
 cd $WorkingDir
 
-if [ $gen -eq 0 ]; then
-	mkdir -m775 $RunDir/AraSim_Outputs
-	mkdir -m775 $RunDir/AraSim_Errors
-fi
-
 job_name=ara_hpol_paralleljob.sh
 SpecificSeed=32000
 numJobs=$((NPOP*Seeds))
@@ -44,11 +39,3 @@ rm -f outputs/*.root
 if [ $gen -eq 10000 ]; then
 	sbatch --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,AraSimDir=$AraSimExec Batch_Jobs/AraSimBiconeActual_Prototype.sh 
 fi
-
-# Moving uan files to generation directory
-cd $WorkingDir/Run_Outputs/${RunName}/uan_files
-mkdir -m775 ${gen}_uan_files
-for i in `seq 1 $NPOP`; do
-	mkdir -m775 ${gen}_uan_files/${i}
-	mv ${gen}_${i}_*.uan ${gen}_uan_files/${i}/
-done

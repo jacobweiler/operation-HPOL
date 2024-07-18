@@ -102,7 +102,7 @@ for (var i = 0; i <= 59; i++){
 var ind_num = k - (gen * NPOP);
 var file = RunDir + "/uan_files/" + gen + "_uan_files/" + ind_num + "/";
 file = file + gen + "_" + ind_num + "_";
-file = file + (i) + ".uan";
+file = file + (i+1) + ".uan";
 
 FarZoneUtils.exportToUANFile(thdata,thphase,phdata,phphase,inputpower,file, i);
 }

@@ -45,21 +45,18 @@ echo $flag_files
 echo "Done!"
 
 # Removing Old output xmacro
-rm -f $$RunXmacrosDir/output.xmacro
+rm -f $RunXmacrosDir/output.xmacro
 
 # Writing new xmacro
-echo "var NPOP = $NPOP;" >> $$RunXmacrosDir/output.xmacro
-echo "var gen = \"$gen\";" >> $$RunXmacrosDir/output.xmacro
-echo "var WorkingDir = \"$WorkingDir\";" >> $$RunXmacrosDir/output.xmacro
-echo "var RunDir = \"$WorkingDir/RunData/$RunName\";" >> $$RunXmacrosDir/output.xmacro
-echo "for (var k = $(($gen*$NPOP + 1)); k <= $(($gen*$NPOP+$NPOP)); k++){" >> $$RunXmacrosDir/output.xmacro
+echo "var NPOP = $NPOP;" >> $RunXmacrosDir/output.xmacro
+echo "var gen = \"$gen\";" >> $RunXmacrosDir/output.xmacro
+echo "var WorkingDir = \"$WorkingDir\";" >> $RunXmacrosDir/output.xmacro
+echo "var RunDir = \"$RunDir\";" >> $RunXmacrosDir/output.xmacro
+echo "for (var k = $(($gen*$NPOP + 1)); k <= $(($gen*$NPOP+$NPOP)); k++){" >> $RunXmacrosDir/output.xmacro
 
-cat shortened_outputmacroskeleton.txt >> $$RunXmacrosDir/output.xmacro
+cat $WorkingDir/Xmacros/shortened_outputmacroskeleton.txt >> $RunXmacrosDir/output.xmacro
 
-sed -i "s+fileDirectory+${WorkingDir}+" $$RunXmacrosDir/output.xmacro
-
-module load xfdtd/7.10.2.3
-xfdtd $XFProj --execute-macro-script=$$RunXmacrosDir/output.xmacro || true --splash=false
+xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/output.xmacro || true --splash=false
 
 if [ $database_flag -eq 1 ]; then 
     #This is adding files to the database

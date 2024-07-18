@@ -5,9 +5,9 @@ Goal:			Translate XF output into readable AraSim input. Modified from the old
 			XFintoARA.py from Jorge Torres, Nov 2017.
 Comments:		You need to have all your XF output files in the same folder (see uanLoc), with 
 			the standard name: "antennaNumber_frequencyNumber.uan". Both of these numbers 
-			start counting on 1, not zero. Will output one file (see datLoc) that combines 
-			all frequencies, so one dat file per antenna. The dat standard name is: 
-			"evol_antenna_model_(i).dat" where (i) is the antenna number starting from 1, 
+			start counting on 1, not zero. Will output one file that combines 
+			all frequencies, so one dat file per antenna. The txt standard name is: 
+			"a_(i).txt" where (i) is the antenna number starting from 1, 
 			not zero.
 Code Headers:		.uan header: 	Theta, Phi, Gain Theta (dB), Gain Phi (dB), Phase Theta, Phase Phi
 			.dat header:	Theta, Phi, Gain (dB, theta), Gain (theta), Phase (theta)
@@ -42,24 +42,13 @@ head1_a = "freq : "
 head1_b = " MHz"
 head2 = "SWR : 1.965000"
 head3 = " Theta     Phi     Gain(dB)     Gain     Phase(deg) "
-# .uan file location
-#uanLoc = '/home/suren/Desktop/OSU Research/XFintoARAmod/' 
-uanLoc = "/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Antenna_Performance_Metric/"
-
-#location on machtay1 "/users/PAS0654/machtay1/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Antenna_Performance_Metric/"
-
-# .dat file saving location
-#datLoc = '/home/suren/Desktop/OSU Research/XFintoARAmod/'
-datLoc = uanLoc # currently, we are saving files in the same directory
-
 ### DEFINITIONS ###
 
 # Reads the (indiv)freqNum.uan file
 def readFile(indiv, freqNum):
     n = 37
     m = 73
-    #uanName = uanLoc+str(indiv)+"_"+str(freqNum)+".uan"
-    uanName = f'{g.WorkingDir}/Run_Outputs/{g.RunName}/uan_files/{g.gen}_{indiv}_{freqNum}.uan'  #changed from g.indiv + 1 to just indiv 
+    uanName = f'{g.WorkingDir}/Run_Outputs/{g.RunName}/uan_files/{g.gen}_uan_files/{indiv}/{g.gen}_{indiv}_{freqNum}.uan'  #changed from g.indiv + 1 to just indiv 
     f = open(uanName, "r")
 
 
@@ -100,8 +89,8 @@ g = parser.parse_args()
 n = 37
 m = 73
 for antenna in range(g.NPOP):
-    with open(g.WorkingDir + "/Run_Outputs/" + g.RunName + "txt_files/a_"+str(antenna+1)+".txt", "w+") as txtFile:
-        os.chmod(g.WorkingDir + "/Run_Outputs/" + g.RunName + "txt_files/a_"+str(antenna+1)+".txt", 0o777)
+    with open(g.WorkingDir + "/Run_Outputs/" + g.RunName + "/txt_files/a_"+str(antenna+1)+".txt", "w+") as txtFile:
+        os.chmod(g.WorkingDir + "/Run_Outputs/" + g.RunName + "/txt_files/a_"+str(antenna+1)+".txt", 0o777)
         for freq in range(numFreq):
             txtFile.write(head1_a + str(freqVals[freq])+ head1_b+ '\n')
             txtFile.write(head2+ '\n')
