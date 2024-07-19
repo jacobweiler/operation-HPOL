@@ -16,7 +16,7 @@ while [ "$nFiles" != "$totPop" ]; do
 	echo "Waiting for AraSim jobs to finish..."
 	sleep 20
 	
-	nFiles=$(ls -1 --file-type ../AraSimConfirmed | grep -v '/$' | wc -l) 
+	nFiles=$(ls -1 --file-type $RunDir/AraSimConfirmed | grep -v '/$' | wc -l) 
 	
 	for file in *; do
 		if [ "$file" != "*" ] && [ "$file" != "" ]; then
@@ -26,11 +26,11 @@ while [ "$nFiles" != "$totPop" ]; do
 
 			current_file="AraSim_$(($((${current_individual}-1))*${Seeds}+${current_seed}))"	
 
-			if 	grep "segmentation violation" ../AraSim_Errors/${current_file}.error || grep "DATA_LIKE_OUTPUT" ../AraSim_Errors/${current_file}.error || 
-				grep "CANCELLED" ../AraSim_Errors/${current_file}.error || grep "please rerun" ../AraSim_Errors/${current_file}.error; then
+			if 	grep "segmentation violation" $RunDir/AraSim_Errors/${current_file}.error || grep "DATA_LIKE_OUTPUT" $RunDir/AraSim_Errors/${current_file}.error || 
+				grep "CANCELLED" $RunDir/AraSim_Errors/${current_file}.error || grep "please rerun" $RunDir/AraSim_Errors/${current_file}.error; then
 				# Remove output so we don't get stuck in infinite loop
-				rm -f ../AraSim_Errors/${current_file}.error
-				rm -f ../AraSim_Outputs/${current_file}.output
+				rm -f $RunDir/AraSim_Errors/${current_file}.error
+				rm -f $RunDir/AraSim_Outputs/${current_file}.output
 
 				echo "segmentation violation/DATA_LIKE_OUTPUT/CANCELLED error!" 
 				
@@ -46,7 +46,7 @@ while [ "$nFiles" != "$totPop" ]; do
 				rm -f ${current_individual}_${current_seed}.txt
 			else
 				if [ "$current_individual" != "" ] && [ "$current_seed" != "" ]; then
-					echo "This individual succeeded" > ../AraSimConfirmed/${current_individual}_${current_seed}_confirmation.txt
+					echo "This individual succeeded" > $RunDir/AraSimConfirmed/${current_individual}_${current_seed}_confirmation.txt
 				fi
 			fi
 		fi

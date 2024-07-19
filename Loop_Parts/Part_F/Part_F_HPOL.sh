@@ -24,15 +24,15 @@ module load python/3.7-2019.10
 cd Antenna_Performance_Metric
 
 #Plotting software for Veff(for each individual) vs Generation
-python Plotting/Veff_Plotting.py "$WorkingDir"/Run_Outputs/$RunName "$WorkingDir"/Run_Outputs/$RunName $gen $NPOP $Seeds
+#python Plotting/Veff_Plotting.py "$WorkingDir"/Run_Outputs/$RunName "$WorkingDir"/Run_Outputs/$RunName $gen $NPOP $Seeds
 
 # Format is source directory (where is generationDNA.csv), destination directory (where to put plots), npop
-python Plotting/FScorePlot.py $WorkingDir/Run_Outputs/$RunName $WorkingDir/Run_Outputs/$RunName $NPOP $gen
+python Plotting/FScorePlot.py $RunDir $RunDir $NPOP $gen
 
-python3 Plotting/color_plots.py $WorkingDir/Run_Outputs/$RunName/ $WorkingDir/Run_Outputs/$RunName $NPOP $gen $Seeds
+#python3 Plotting/color_plots.py $RunDir/ $RunDir $NPOP $gen $Seeds
 
-mkdir -m 775 $WorkingDir/Run_Outputs/$RunName/Gain_Plots/${gen}_Gain_Plots
-./image_maker.sh $WorkingDir/Run_Outputs/$RunName/Generation_Data/Generation_${gen} $WorkingDir/../Xmacros $WorkingDir/Run_Outputs/$RunName/Antenna_Images $gen $WorkingDir $RunName $NPOP
+mkdir -m 775 $RunDir/Gain_Plots/${gen}_Gain_Plots
+#./image_maker.sh $RunDir/Generation_Data/Generation_${gen} $WorkingDir/../Xmacros $RunDir/Antenna_Images $gen $WorkingDir $RunName $NPOP
 
 echo 'Congrats on getting some nice plots!'
 

@@ -4,7 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import argparse
 import csv
 import matplotlib.cm as cm
- 
+
 #---------GLOBAL VARIABLES----------GLOBAL VARIABLES----------GLOBAL VARIABLES----------GLOBAL VARIABLES
 
 # We need to grab the three arguments from the bash script or user. These arguments in order are [the name of the source folder of the fitness scores], [the name of the destination folder for the plots], and [the number of generations]
@@ -54,7 +54,7 @@ for ind in range(1, g.NPOP+1):
             for i, row in enumerate(f_read): #loop over the rows 
                 if i == lineNum: #skipping the header
                     fitness = float(row[0]) #lineNum contains the fitness score
-                    #print(fitness)
+                    print(fitness)
         fr.close()
         #fill the generation individual values into arrays to hold them temporarily
         tempFitnesses.append(fitness)

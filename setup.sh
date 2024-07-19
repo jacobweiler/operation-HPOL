@@ -12,6 +12,7 @@ GeoFactor=1			## This is the number by which we are scaling DOWN our antennas. T
 num_keys=4			## how many XF keys we are letting this run use
 database_flag=0			## 0 if not using the database, 1 if using the database
 DEBUG_MODE=0			## 1 for testing (ex: send specific seeds), 0 for real runs
+SpecificSeed=32000      ## Specific Seed used for AraSim
 ########### ANTENNA PARAMS ##########################################################################################
 antenna="HPOL"             ## This is the type of antenna we are evolving. Options are "VPOL" or "HPOL" 
 ############## VPOL PARAMS ##########################################################################################
@@ -36,3 +37,4 @@ RANK=0				    ## Percent of individuals selected through rank
 ELITE=0				    ## Elite function on/off (1/0)
 ############## JOB SUBMISSION #######################################################################################
 SingleBatch=0       ## 1 to submit a single batch for XF jobs (each job running for n antennas)
+maxJobs=100

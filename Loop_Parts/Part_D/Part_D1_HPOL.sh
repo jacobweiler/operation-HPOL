@@ -26,7 +26,8 @@ SpecificSeed=32000
 numJobs=$((NPOP*Seeds))
 output_name=$RunDir/AraSim_Outputs/AraSim_%a.output
 error_name=$RunDir/AraSim_Errors/AraSim_%a.error
-maxJobs=252 # for now, maybe make this a variable in the main loop script
+
+mkdir -m777 $RunDir/AraSim_Outputs/${gen}_AraSim_Outputs
 
 sbatch 	--array=1-${numJobs}%${maxJobs} --export=ALL,gen=$gen,WorkingDir=$WorkingDir,RunName=$RunName,Seeds=$Seeds,AraSimDir=$AraSimExec \
 		--job-name=${RunName} --output=$output_name --error=$error_name \

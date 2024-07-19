@@ -6,33 +6,30 @@
 #SBATCH -t 4:00:00
 #SBATCH -N 1
 #SBATCH -n 40
-#SBATCH --output=/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Run_Outputs/%x/AraSim_Outputs/AraSim_%a.output
-#SBATCH --error=/fs/ess/PAS1960/BiconeEvolutionOSC/BiconeEvolution/current_antenna_evo_build/XF_Loop/Evolutionary_Loop/Run_Outputs/%x/AraSim_Errors/AraSim_%a.error
-
-#variables
-#gen=$1
-#WorkingDir=$2
-#RunName=$3
 
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
-source /fs/ess/PAS1960/BiconeEvolutionOSC/new_root/new_root_setup.sh
 
 cd $AraSimDir
 
 threads=40
 num=$(($((${SLURM_ARRAY_TASK_ID}-1))/${Seeds}+1))
 seed=$(($((${SLURM_ARRAY_TASK_ID}-1))%${Seeds}+1))
+echo "num is $num"
+echo "seed is $seed"
 # init = seed - 1
 init=$((${seed}-1))
+echo "init is $init"
 
 echo a_${num}_${seed}.txt
 
 chmod -R 777 $AraSimDir/outputs/
 
 # We need to create a setup file for each individual in the population 
-gain_file=$RunDir/txt_files/a_${num}.txt 
+gain_file="${RunDir}/txt_files/a_${num}.txt "
 
-sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" -e "s/hpol_gain/$gain_file" ${AraSimExec}/setup_dummy_hpol.txt > $TMPDIR/setup.txt
+echo "gain file is $gain_file"
+
+sed -e "s|num_nnu|$NNT|" -e "s|n_exp|$exp|" -e "s|current_seed|$SpecificSeed|" -e "s|hpol_gain|$gain_file|" ${AraSimExec}/SETUP/setup_dummy_hpol.txt > $TMPDIR/setup.txt
 
 # starts running $threads processes of AraSim
 echo "Starting AraSim processes"
