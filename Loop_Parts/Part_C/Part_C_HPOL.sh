@@ -15,4 +15,4 @@ source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 cd $WorkingDir
 
-python Antenna_Performance_Metric/XFintoARA.py $NPOP $WorkingDir $RunName $gen $indiv
+python Antenna_Performance_Metric/XFintoARA_HPOL.py $NPOP $WorkingDir $RunName $gen $indiv

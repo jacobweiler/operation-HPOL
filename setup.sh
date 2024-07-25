@@ -1,6 +1,6 @@
 ####### GENERAL PARAMS ###############################################################################################
 TotalGens=100			## number of generations (after initial) to run through
-NPOP=1				## number of individuals per generation; please keep this value below 99
+NPOP=2				## number of individuals per generation; please keep this value below 99
 Seeds=10			## This is how many AraSim jobs will run for each individual## the number frequencies being iterated over in XF (Currectly only affects the output.xmacro loop)
 FREQS=60				## the number frequencies being iterated over in XF (Currectly only affects the output.xmacro loop)
 FreqStart=83.33     ## Start of Frequency Range

@@ -55,7 +55,7 @@ echo "Moving AraSim outputs to final destination"
 for (( i=0; i<${threads}; i++ ))
 do
     indiv_thread=$((${init}*${threads}+${i}))
-    echo "individual thread is $indiv_thread"
+    dataoutloc="$TMPDIR/AraOut_${gen}_${indiv}_${indiv_thread}.txt"
     #mv AraOut.setup.txt.run${indiv_thread}.root $WorkingDir/Antenna_Performance_Metric/AraOut_${gen}_${num}_${indiv_thread}.root
     rm AraOut.setup.txt.run${indiv_thread}.root
     mv $dataoutloc $WorkingDir/Run_Outputs/$RunName/AraSim_Outputs/${gen}_AraSim_Outputs/AraOut_${gen}_${indiv}_${indiv_thread}.txt

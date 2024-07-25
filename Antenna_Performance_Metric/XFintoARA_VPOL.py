@@ -59,14 +59,14 @@ def readFile(indiv, freqNum):
     for i in range(n):
         for j in range(m):
             line = f.readline()
-            lineList = line.split(" ");
+            lineList = line.split(" ")
             lineList[0] = lineList[0] + " " + "\t" + " "
             lineList[1] = lineList[1] + " " + "\t" + " "
             linearGainNum = float(lineList[2])
             linearGainNum = "%.2f" % 10 ** (linearGainNum / 10)
             linearGain = str(linearGainNum) + "     " + "\t" + "    "
             lineList[2] = "%.2f" % float(lineList[2]) + "     " + "\t" + "   "
-            lineList[4] = "%.2f" % float(lineList[5])
+            lineList[4] = "%.2f" % float(lineList[4])
             lineFinal = lineList[0] + lineList[1] + lineList[2] + linearGain + lineList[4]+"\n"
         
             mat[j][i] = lineFinal

@@ -149,7 +149,14 @@ for gen in `seq $InitialGen $TotalGens`; do
 	## Part C ##
 	if [ $state -eq 4 ]; then
         indiv=1
-        ./Loop_Parts/Part_C/Part_C.sh $WorkingDir $RunName $gen $indiv
+		if [ $antenna == "VPOL" ]; then
+			./Loop_Parts/Part_C/Part_C_VPOL.sh $WorkingDir $RunName $gen $indiv
+		elif [ $antenna == "HPOL" ]; then
+			./Loop_Parts/Part_C/Part_C_HPOL.sh $WorkingDir $RunName $gen $indiv
+		else
+			echo "ERROR: Antenna type not recognized"
+			exit 1
+		fi
 		state=5
 
 		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv

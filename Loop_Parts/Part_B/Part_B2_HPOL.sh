@@ -39,8 +39,6 @@ echo "Done!"
 
 cd $WorkingDir
 
-mkdir -m775 $RunDir/uan_files/${gen}_uan_files 2> /dev/null
-
 # Removing Old output xmacro
 rm -f $RunXmacrosDir/output.xmacro
 
