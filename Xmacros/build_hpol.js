@@ -1,5 +1,5 @@
 // build HPOL antenna (units not working on this script, default units in cm)
-function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_height) 
+function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_height, ferrite_height, ferrite_radius) 
 {
     // Scaling the variables because you can't input the units in this method of building (for some reason)
 	
@@ -18,6 +18,9 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     var antenna_height = antenna_height * scale;
     var half_height = antenna_height/2;
     var feed_distance = feed_dist * scale; 
+    var ferrite_height = ferrite_height * scale;
+    var ferrite_radius = ferrite_radius * scale;
+
 	// Start by creating a new pattern
 	var ePattern = new EllipticalPattern();
 	ePattern.setCenter(new CoordinateSystemPosition(0,0,0));
@@ -66,33 +69,40 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     var tconnect4 = new LawEdge(""+x_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+y_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+half_height+ " + " +feed_distance+")",0,Math.PI);
     var tconnect3 = new LawEdge("("+arcx_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+arcy_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+half_height+ " + " +feed_distance+")",0,Math.PI);
 
+    // Ferrite Rods
+    var ferrite_rod_edges = new LawEdge("(0.07)*cos(u)+0.5","(0.07)*sin(u)+0.5","-(0.4/2)",0,2*Math.PI);
+
     //This is where we set the LawEdge lines into a shape (Sketch)
     var semicircle1 = new Sketch();
 	var wire = new Sketch();
     var topwire = new Sketch();
     var connect = new Sketch();   
     var tconnect = new Sketch(); 
-	
+	var ferrite_rod = new Sketch();
+
     // Add the edges to the sketches
 	semicircle1.addEdges( [line1,line2, outer,inner] );
 	wire.addEdges([wire1,wire2,wire3,wire4]);
 	topwire.addEdges([twire1,twire2,twire3,twire4]);
     connect.addEdges([connect1,connect2,connect3,connect4]);
     tconnect.addEdges([tconnect1,tconnect2,tconnect3,tconnect4]);
-	
+	ferrite_rod.addEdges([ferrite_rod_edges]);
+
     //Making a cover for the Sketches to give then a solid surface.
 	var covsemi = new Cover(semicircle1);
     var covwire = new Cover(wire);
     var covtopwire = new Cover(topwire);
     var covconnect = new Cover(connect);
     var covtconnect = new Cover(tconnect);
-	
+	var ferrite_rod_cov = new Cover(ferrite_rod);
+
     //Now we Extrude the Sketch (which still has a cover) in the form of (Sketch , distance to extrude , Direction). Here we are setting the CoordinateSystemDirection to (0,0,1) for the z direction. 
     var extrudesemi = new Extrude(semicircle1,antenna_height,CoordinateSystemDirection(0,0,1)); //sketch, sketch thickness to extrude, coordinates
     var extrudewire = new Extrude(wire,plate_thickness,CoordinateSystemDirection(0,0,1));
     var extrudetopwire = new Extrude(topwire,plate_thickness,CoordinateSystemDirection(0,0,1));
     var extrudeconnect = new Extrude(connect,plate_thickness,CoordinateSystemDirection(0,0,1));
     var extrudetconnect = new Extrude(tconnect,plate_thickness,CoordinateSystemDirection(0,0,1));
+    var ferrite_rod_extrude = new Extrude(ferrite_rod, ferrite_height, CoordinateSystemDirection(0,0,1));
 
     //Here we are creating a Recipe to assemble multiple functions to our shapes. Cover, Extrude, and ePattern.
     var rsemi = new Recipe();
@@ -120,6 +130,11 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     rtconnect.append(extrudetconnect);
     rtconnect.append(ePattern);
 
+    var ferrite_recipe = new Recipe();
+    ferrite_recipe.append( ferrite_rod_cov );
+    ferrite_recipe.append(ferrite_rod_extrude);
+    ferrite_recipe.append(ePattern);
+
     // Adding recipe to model
 	var msemi = new Model();
 	msemi.setRecipe( rsemi );
@@ -135,6 +150,9 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
 
     var mtconnect = new Model();
     mtconnect.setRecipe( rtconnect );
+
+    var ferrite_rod_model = new Model();
+    ferrite_rod_model.setRecipe( ferrite_recipe )
 
     // Adding parts to the XF project + giving names
 	var surfacesemi = App.getActiveProject().getGeometryAssembly().append(msemi);
@@ -152,6 +170,9 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     var surfacetconnect = App.getActiveProject().getGeometryAssembly().append(mtconnect);
 	surfacetconnect.name = "Top Connecting Wire"
 
+    var surfacerodd = App.getActiveProject().getGeometryAssembly().append(ferrite_rod_model);
+    surfacerodd.name = "Ferrite Rods"
+
     //This section is where we define coordinates of the wires
     var coordst = surfacetopwire.getCoordinateSystem();
     var coords = surfacewire.getCoordinateSystem();
@@ -166,4 +187,5 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     App.getActiveProject().setMaterial( surfacetopwire, pecMaterial );
     App.getActiveProject().setMaterial( surfaceconnect, pecMaterial );
     App.getActiveProject().setMaterial( surfacetconnect, pecMaterial );
+    App.getActiveProject().setMaterial( surfacerodd, ferriteMaterial );
 }

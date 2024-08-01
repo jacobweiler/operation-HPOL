@@ -8,6 +8,8 @@ var num_plates =[]; // Number of plates
 var radius = []; // Radius of the antenna
 var arclength = []; // Arc length of the plates
 var antenna_height = []; // Height of the antenna
+var rod_height = []; // height of the ferrite rods
+var rod_radius = []; // radius of the ferrite rods
 
 var lines = generationDNA.split('\n');
 
@@ -20,11 +22,15 @@ for(var i = 0;i < lines.length - 1;i++){
 		Output.println("Radius: "+params[1]);
 		Output.println("Arclength: "+params[2]);
 		Output.println("Antenna Height: "+params[3]);
+        Output.println("Rod Height: "+params[4]);
+        Output.println("Rod Radius: "+params[5]);
 
 		num_plates[i-antennaLines]=params[0];
 		radius[i-antennaLines]=params[1];
 		arclength[i-antennaLines]=params[2];
 		antenna_height[i-antennaLines]=params[3];
+        rod_height[i-antennaLines]=params[4];
+        rod_radius[i-antennaLines]=params[5];
         
 	}
 }
@@ -35,15 +41,20 @@ for(var i = indiv - 1; i < NPOP; i++)
     var rad = radius[i];
     var arc = arclength[i];
     var height = antenna_height[i];
+    var rod_h = rod_height[i];
+    var rod_r = rod_radius[i];
 
     Output.println('plate_num: ' + plate_num);
     Output.println('rad: ' + rad);
     Output.println('arc: ' + arc);
     Output.println('height: ' + height);
+    Output.println('rod_h: ' + rod_h);
+    Output.println('rod_r: ' + rod_r);
 
     App.getActiveProject().getGeometryAssembly().clear();
     CreatePEC();
-    build_hpol(plate_num, rad, thick, arc, height);
+    CreateFerrite();
+    build_hpol(plate_num, rad, thick, arc, height, rod_h, rod_r);
     CreateAntennaSource((height/2) - feed_dist, (height/2) + feed_dist); 
     CreateGrid();
     CreateSensors();

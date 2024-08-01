@@ -59,6 +59,7 @@ cat $XmacrosDir/headerHPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat $XmacrosDir/functioncallsHPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat $XmacrosDir/build_hpol.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat $XmacrosDir/CreatePEC.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/CreateFerrite.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat $XmacrosDir/CreateAntennaSource.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat $XmacrosDir/CreateGrid.js >> $RunXmacrosDir/simulation_PEC.xmacro
 cat $XmacrosDir/CreateSensors.js >> $RunXmacrosDir/simulation_PEC.xmacro

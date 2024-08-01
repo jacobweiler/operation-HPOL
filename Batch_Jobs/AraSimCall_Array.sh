@@ -33,9 +33,11 @@ echo a_${num}_${seed}.txt
 chmod -R 777 $AraSimDir/outputs/
 
 # We need to create a setup file for each individual in the population 
-gain_file=$RunDir/txt_files/a_${num}.txt 
+gain_file="${RunDir}/txt_files/a_${num}.txt "
 
-sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" -e "s/hpol_gain/$gain_file" ${AraSimExec}/setup_dummy_hpol.txt > $TMPDIR/setup.txt
+echo "gain file is $gain_file"
+
+sed -e "s|num_nnu|$NNT|" -e "s|n_exp|$exp|" -e "s|current_seed|$SpecificSeed|" -e "s|vpol_gain|$gain_file|" ${AraSimExec}/SETUP/setup_dummy_vpol.txt > $TMPDIR/setup.txt
 
 dataoutloc="$TMPDIR/AraOut_${gen}_${indiv}_${indiv_thread}.txt"
 

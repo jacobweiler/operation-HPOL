@@ -39,7 +39,7 @@ NPOP = len(fScoresInd)
 """
 
 #new way (similar to in VeffPlotting.py)
-
+fitness = 0 
 tempFitnesses = []
 FitnessesArray = []
 for ind in range(1, g.NPOP+1):
@@ -47,7 +47,7 @@ for ind in range(1, g.NPOP+1):
     #we need to loop over all the generations, since the gen is in the file names
     for gen in range(0, g.numGens+1):
         #we need to give the changeable filenames we're gonna read
-        fitnesses = "Generation_Data/" + "Generation_{}".format(gen) + "/{}_fitnessScores.csv".format(gen)
+        fitnesses = "Generation_Data/{}_fitnessScores.csv".format(gen)
         #for each generation, we need to get all the fitnesses
         with open(g.source + "/" + fitnesses, "r") as fr: #fr for fitnesses read
             f_read = csv.reader(fr, delimiter=',') #reading fr as a csv
