@@ -23,6 +23,9 @@ gen=$3
 indiv=$4
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
+mkdir -m777 $RunDir/Antenna_Images/${gen}
+mkdir -m777 $RunDir/uan_files/${gen}_uan_files 2> /dev/null
+
 # Delete Simulation directories if they exist
 for i in $(seq 1 $XFCOUNT); do
 	individual_number=$(($gen*$XFCOUNT + $i))

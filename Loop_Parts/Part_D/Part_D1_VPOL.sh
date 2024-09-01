@@ -32,8 +32,6 @@ else
 fi
 
 if [ $DEBUG_MODE -eq 0 ]; then
-	sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" ${AraSimExec}/setup_dummy_araseed.txt > ${AraSimExec}/setup.txt
-
 	cd $WorkingDir
 	numJobs=$((NPOP*Seeds))
 	output_name=$RunDir/AraSim_Outputs/AraSim_%a.output
@@ -56,8 +54,6 @@ else
 		# but I'm commenting it out for testing purposes
 		SpecificSeed=$(expr $j + 32000)
 		#SpecificSeed=32000
-
-		sed -e "s/num_nnu/$NNT/" -e "s/n_exp/$exp/" -e "s/current_seed/$SpecificSeed/" ${AraSimExec}/setup_dummy_araseed.txt > ${AraSimExec}/setup.txt
 
 		#We will want to call a job here to do what this AraSim call is doing so it can run in parallel
 		cd $WorkingDir
