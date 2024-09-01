@@ -39,14 +39,14 @@ function CreateAntennaSource(zpos_ground, zpos_feed)
     component.setAsPort( true );
     // Define the endpoints of this feed - these are defined in world position, but you can also attach them to edges, faces, etc.
     var coordinate1 = new CoordinateSystemPosition( 0 + units, 0 + units, zpos_ground + units);
-    var coordinate2 = new CoordinateSystemPosition( 0 + units, 0 + units, 0 + units);
+    var coordinate2 = new CoordinateSystemPosition( 0 + units, 0 + units, (zpos_feed - (feed_dist/2)) + units);
     component.setCircuitComponentDefinition( feedInList );
     component.setEndpoint1( coordinate1 );
     component.setEndpoint2( coordinate2 );
     componentList.addCircuitComponent( component );
 
     // Now we need to add the capacitor to the top half of the Feed
-    var cap = new Feed();
+    var cap = new PassiveLoad();
     cap.feedType = Feed.Voltage; // Set its type enumeration to be Voltage.
     // Define a capacitance for this feed 
     var rlc2 = new RLCSpecification();
@@ -54,7 +54,6 @@ function CreateAntennaSource(zpos_ground, zpos_feed)
     rlc2.setCapacitance( "20 pF" );
     rlc2.setInductance( "0" );
     cap.setImpedanceSpecification( rlc2 );
-    cap.setWaveform( waveformInList );  // Make sure to use the reference that was returned by the list, or query the list directly
     cap.name = "20 pF Capacitor";
     var capInList = componentDefinitionList.addCircuitComponentDefinition( cap );
 
@@ -62,7 +61,7 @@ function CreateAntennaSource(zpos_ground, zpos_feed)
     capacitor.name = "Capacitor";
     capacitor.setAsPort( true );
     // Define the endpoints of this capacitor - these are defined in world position, but you can also attach them to edges, faces, etc.
-    var coordinate3 = new CoordinateSystemPosition( 0 + units, 0 + units, 0 + units);
+    var coordinate3 = new CoordinateSystemPosition( 0 + units, 0 + units, (zpos_ground + (feed_dist/2)) + units);
     var coordinate4 = new CoordinateSystemPosition( 0 + units, 0 + units, zpos_feed + units);
     capacitor.setCircuitComponentDefinition( capInList );
     capacitor.setEndpoint1( coordinate3 );

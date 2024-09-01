@@ -29,7 +29,7 @@ gain_file="${RunDir}/txt_files/a_${num}.txt "
 
 echo "gain file is $gain_file"
 
-sed -e "s|num_nnu|$NNT|" -e "s|n_exp|$exp|" -e "s|current_seed|$SpecificSeed|" -e "s|hpol_gain|$gain_file|" ${AraSimDir}/SETUP/setup_dummy_hpol.txt > $TMPDIR/setup.txt
+sed -e "s|num_nnu|$NNT|" -e "s|n_exp|$exp|" -e "s|current_seed|$SpecificSeed|" -e "s|vpol_gain|$gain_file|" ${AraSimDir}/SETUP/setup_dummy_vpol.txt > $TMPDIR/setup.txt
 
 # starts running $threads processes of AraSim
 echo "Starting AraSim processes"

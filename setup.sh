@@ -14,7 +14,7 @@ database_flag=0			## 0 if not using the database, 1 if using the database
 DEBUG_MODE=0			## 1 for testing (ex: send specific seeds), 0 for real runs
 SpecificSeed=32000      ## Specific Seed used for AraSim
 ########### ANTENNA PARAMS ##########################################################################################
-antenna="HPOL"             ## This is the type of antenna we are evolving. Options are "VPOL" or "HPOL" 
+antenna="VPOL"             ## This is the type of antenna we are evolving. Options are "VPOL" or "HPOL" 
 ############## VPOL PARAMS ##########################################################################################
 RADIUS=0			## If 1, radius is asymmetric. If 0, radius is symmetric		
 LENGTH=0			## If 1, length is asymmetric. If 0, length is symmetric

@@ -44,6 +44,16 @@ for(var i = indiv - 1; i < NPOP; i++)
     var rod_h = rod_height[i];
     var rod_r = rod_radius[i];
 
+    // Hardcoding in the dimensions that are similar to in-ice HPOL
+    var feed_dist = 0.55; // distance between ground and feed
+    var rad = 6.5; // Radius of the antenna
+    var thick = 0.15; // Thickness of the HPOL plates
+    var arc = 2.5; // Arc length of the plates
+    var height = 34; // Height of the antenna
+    var rod_h = 46.2; // height of the ferrite rods
+    var rod_r = 1.85; // radius of the ferrite rods
+    var plate_num = 4; // Number of plates
+
     Output.println('plate_num: ' + plate_num);
     Output.println('rad: ' + rad);
     Output.println('arc: ' + arc);

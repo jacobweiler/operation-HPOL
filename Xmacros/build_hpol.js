@@ -1,16 +1,6 @@
 // build HPOL antenna (units not working on this script, default units in cm)
 function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_height, ferrite_height, ferrite_radius) 
 {
-    // Hardcoding in the dimensions that are similar to in-ice HPOL
-    var feed_dist = 0.6; // distance between ground and feed
-    var radius = 6.5; // Radius of the antenna
-    var plate_thickness = 0.15; // Thickness of the HPOL plates
-    var arclength = 5; // Arc length of the plates
-    var antenna_height = 34; // Height of the antenna
-    var ferrite_height = 46.2; // height of the ferrite rods
-    var ferrite_radius = 1.85; // radius of the ferrite rods
-    var num_plates = 4; // Number of plates
-
     // Scaling the variables because you can't input the units in this method of building 
     if (units == " cm"){
         scale = (1/100);
@@ -53,16 +43,16 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
 	var line2 = new LawEdge(""+x_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+y_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","0",0,Math.PI);//Left line
 
 	//Building the lower set of wires:
-    var wire1 = new LawEdge("(("+radius_outer+"))*u/("+Math.PI+")","0","("+half_height+ " - " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0 & z=0
-    var wire2 = new LawEdge("("+radius_outer+")*u/("+Math.PI+")",""+plate_thickness+"","("+half_height+ " - " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=0
-    var wire3 = new LawEdge("0","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
-    var wire4 = new LawEdge("(("+radius_outer+"))","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
+    var wire1 = new LawEdge("(("+radius_outer+"))*u/("+Math.PI+")","0","("+half_height+ " - " +feed_distance+ " + "+ plate_thickness +")",0,Math.PI); //line in x from (0,PI) with y=0 & z=0
+    var wire2 = new LawEdge("("+radius_outer+")*u/("+Math.PI+")",""+plate_thickness+"","("+half_height+ " - " +feed_distance+ " + "+ plate_thickness +")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=0
+    var wire3 = new LawEdge("0","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+ " + "+ plate_thickness +")",0,Math.PI);
+    var wire4 = new LawEdge("(("+radius_outer+"))","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+ " + "+ plate_thickness +")",0,Math.PI);
 
     //Building the top set of wires:
-    var twire1 = new LawEdge("(("+radius_outer+"))*u/("+Math.PI+")","0","("+half_height+ " + " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0 & z=2.02
-    var twire2 = new LawEdge("("+radius_outer+")*u/("+Math.PI+")",""+plate_thickness+"","("+half_height+ " + " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=2.02
-    var twire3 = new LawEdge("0","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " + " +feed_distance+")",0,Math.PI);
-    var twire4 = new LawEdge("("+radius_outer+")","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " + " +feed_distance+")",0,Math.PI);
+    var twire1 = new LawEdge("(("+radius_outer+"))*u/("+Math.PI+")","0","("+half_height+ " + " +plate_thickness+")",0,Math.PI); //line in x from (0,PI) with y=0 & z=2.02
+    var twire2 = new LawEdge("("+radius_outer+")*u/("+Math.PI+")",""+plate_thickness+"","("+half_height+ " + " +plate_thickness+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=2.02
+    var twire3 = new LawEdge("0","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " + " +plate_thickness+")",0,Math.PI);
+    var twire4 = new LawEdge("("+radius_outer+")","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " + " +plate_thickness+")",0,Math.PI);
 
     var arcx_connect = Math.cos(rotation);   //Used to scale the arclegnth of the connecting wires.
     var arcy_connect = Math.sin(rotation);   //Used to scale the arclegnth of the connecting wires.
@@ -71,19 +61,19 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
 
     //Building the lower set of wires to connect to the cover plates:
     //We are using LawEdge to draw the edges of a 2D shape that will later be extruded into 3D.
-    var connect1 = new LawEdge("("+radius_outer+")*cos(u)","("+radius_outer+")*sin(u)",""+half_height+ " - " +feed_distance+"",rotation,phi); //Outer curve
-    var connect2 = new LawEdge("("+radius+")*cos(u)","("+radius+")*sin(u)",""+half_height+ " - " +feed_distance+"",rotation,phi); //Inner curve
-    var connect4 = new LawEdge("("+arcx_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+arcy_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " - " +feed_distance+"",0,Math.PI);  //Beginning edge
-    var connect3 = new LawEdge(""+phi_xscalar+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+phi_yscalar+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " - " +feed_distance+"",0,Math.PI);  //Ending edge
+    var connect1 = new LawEdge("("+radius_outer+")*cos(u)","("+radius_outer+")*sin(u)",""+half_height+ " - " +feed_distance+ " + "+ plate_thickness +"",rotation,phi); //Outer curve
+    var connect2 = new LawEdge("("+radius+")*cos(u)","("+radius+")*sin(u)",""+half_height+ " - " +feed_distance+ " + "+ plate_thickness +"",rotation,phi); //Inner curve
+    var connect4 = new LawEdge("("+arcx_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+arcy_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " - " +feed_distance+ " + "+ plate_thickness +"",0,Math.PI);  //Beginning edge
+    var connect3 = new LawEdge(""+phi_xscalar+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+phi_yscalar+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " - " +feed_distance+ " + "+ plate_thickness +"",0,Math.PI);  //Ending edge
 
     //Building the top set of wires to connect to the cover plates:
-    var tconnect1 = new LawEdge("("+radius+" + "+plate_thickness+")*cos(u)","("+radius+" + "+plate_thickness+")*sin(u)",""+half_height+ " + " +feed_distance+"",x_rotation,rotation);
-    var tconnect2 = new LawEdge("("+radius+")*cos(u)","("+radius+")*sin(u)",""+half_height+ " + " +feed_distance+"",x_rotation,rotation);
-    var tconnect4 = new LawEdge(""+x_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+y_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " + " +feed_distance+"",0,Math.PI);             //Beginning edge
-    var tconnect3 = new LawEdge("("+arcx_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+arcy_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " + " +feed_distance+"",0,Math.PI);   //Ending edge
+    var tconnect1 = new LawEdge("("+radius+" + "+plate_thickness+")*cos(u)","("+radius+" + "+plate_thickness+")*sin(u)",""+half_height+ " + " +plate_thickness+"",x_rotation,rotation);
+    var tconnect2 = new LawEdge("("+radius+")*cos(u)","("+radius+")*sin(u)",""+half_height+ " + " +plate_thickness+"",x_rotation,rotation);
+    var tconnect4 = new LawEdge(""+x_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+y_rotator+"*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " + " +plate_thickness+"",0,Math.PI);             //Beginning edge
+    var tconnect3 = new LawEdge("("+arcx_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+arcy_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " + " +plate_thickness+"",0,Math.PI);   //Ending edge
     // Ferrite Rods
-    var ferrite_rod_edges = new LawEdge("(0.07)*cos(u)+(0.5)","(0.07)*sin(u)+(0.5)","-("+height_difference+"/2)",0,2*Math.PI);
-
+    var ferrite_rod_edges = new LawEdge("("+ferrite_radius+" )*cos(u)+("+((radius/2)-plate_thickness)+")","("+ferrite_radius+")*sin(u)+("+((radius/2)-plate_thickness)+")","-("+height_difference+"/2)",0,2*Math.PI);
+    
     //This is where we set the LawEdge lines into a shape (Sketch)
     var semicircle1 = new Sketch();
 	var wire = new Sketch();
