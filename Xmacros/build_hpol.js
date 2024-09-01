@@ -1,8 +1,17 @@
 // build HPOL antenna (units not working on this script, default units in cm)
 function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_height, ferrite_height, ferrite_radius) 
 {
-    // Scaling the variables because you can't input the units in this method of building (for some reason)
-	
+    // Hardcoding in the dimensions that are similar to in-ice HPOL
+    var feed_dist = 0.6; // distance between ground and feed
+    var radius = 6.5; // Radius of the antenna
+    var plate_thickness = 0.15; // Thickness of the HPOL plates
+    var arclength = 5; // Arc length of the plates
+    var antenna_height = 34; // Height of the antenna
+    var ferrite_height = 46.2; // height of the ferrite rods
+    var ferrite_radius = 1.85; // radius of the ferrite rods
+    var num_plates = 4; // Number of plates
+
+    // Scaling the variables because you can't input the units in this method of building 
     if (units == " cm"){
         scale = (1/100);
     }
@@ -35,7 +44,7 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
 
     var x_rotation = Math.acos(x_rotator)
     var phi = (2*Math.PI/num_plates);              //angle at which the next plate begins
-    var rotation = (2*Math.PI/num_plates - (x_rotation))/2 + x_rotation ; //This is an angle. It is half of the angle between PI/num_plates and the edge of the Cover Plates (given by x_rotation). The +0.02 is just to compensate for the thickness of the wires.
+    var rotation = (2*Math.PI/num_plates - (x_rotation))/2 + x_rotation ; //This is an angle. It is half of the angle between PI/num_plates and the edge of the Cover Plates (given by x_rotation). The +"+plate_thickness+" is just to compensate for the thickness of the wires.
 
     //Building the cover plates:
 	var outer = new LawEdge("("+radius_outer+")*cos(u/"+arclength+")","("+radius_outer+")*sin(u/"+arclength+")","0",0,Math.PI);  //Outer curvevar inner = new LawEdge("("+radius+")*cos(u/"+arclength+")","("+radius+")*sin(u/"+arclength+")","0",0,Math.PI);   //Inner curve
@@ -45,15 +54,15 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
 
 	//Building the lower set of wires:
     var wire1 = new LawEdge("(("+radius_outer+"))*u/("+Math.PI+")","0","("+half_height+ " - " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0 & z=0
-    var wire2 = new LawEdge("("+radius_outer+")*u/("+Math.PI+")","0.02","("+half_height+ " - " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=0
-    var wire3 = new LawEdge("0","(0.02)*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
-    var wire4 = new LawEdge("(("+radius_outer+"))","(0.02)*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
+    var wire2 = new LawEdge("("+radius_outer+")*u/("+Math.PI+")",""+plate_thickness+"","("+half_height+ " - " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=0
+    var wire3 = new LawEdge("0","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
+    var wire4 = new LawEdge("(("+radius_outer+"))","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " - " +feed_distance+")",0,Math.PI);
 
     //Building the top set of wires:
     var twire1 = new LawEdge("(("+radius_outer+"))*u/("+Math.PI+")","0","("+half_height+ " + " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0 & z=2.02
-    var twire2 = new LawEdge("("+radius_outer+")*u/("+Math.PI+")","0.02","("+half_height+ " + " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=2.02
-    var twire3 = new LawEdge("0","(0.02)*u/("+Math.PI+")","("+half_height+ " + " +feed_distance+")",0,Math.PI);
-    var twire4 = new LawEdge("("+radius_outer+")","(0.02)*u/("+Math.PI+")","("+half_height+ " + " +feed_distance+")",0,Math.PI);
+    var twire2 = new LawEdge("("+radius_outer+")*u/("+Math.PI+")",""+plate_thickness+"","("+half_height+ " + " +feed_distance+")",0,Math.PI); //line in x from (0,PI) with y=0.2 & z=2.02
+    var twire3 = new LawEdge("0","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " + " +feed_distance+")",0,Math.PI);
+    var twire4 = new LawEdge("("+radius_outer+")","("+plate_thickness+")*u/("+Math.PI+")","("+half_height+ " + " +feed_distance+")",0,Math.PI);
 
     var arcx_connect = Math.cos(rotation);   //Used to scale the arclegnth of the connecting wires.
     var arcy_connect = Math.sin(rotation);   //Used to scale the arclegnth of the connecting wires.

@@ -2,7 +2,7 @@
 var units = " cm";
 var plate_num = 4; // 4 for now until we implement a generic implementation
 var thick = 0.02; // Thickness of the HPOL plates
-var feed_dist = 1; // distance between ground and feed
+var feed_dist = .6; // distance between ground and feed
 var path = workingdir + "/Run_Outputs/" + RunName + "/Generation_Data/" + gen + "_generationDNA.csv"
 
 // create the frequency array
