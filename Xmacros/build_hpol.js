@@ -1,4 +1,3 @@
-// build HPOL antenna (units not working on this script, default units in cm)
 function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_height, ferrite_height, ferrite_radius) 
 {
     // Scaling the variables because you can't input the units in this method of building 
@@ -73,7 +72,11 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     var tconnect3 = new LawEdge("("+arcx_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))","("+arcy_connect+")*("+radius+"+("+plate_thickness+")*u/("+Math.PI+"))",""+half_height+ " + " +plate_thickness+"",0,Math.PI);   //Ending edge
     // Ferrite Rods
     var ferrite_rod_edges = new LawEdge("("+ferrite_radius+" )*cos(u)+("+((radius/2)-plate_thickness)+")","("+ferrite_radius+")*sin(u)+("+((radius/2)-plate_thickness)+")","-("+height_difference+"/2)",0,2*Math.PI);
-    
+
+	// top and bottom al plates
+	var top_plate_blueprint = new Cylinder(2.55 + units, MathUtils.evaluate(radius));
+	var bottom_plate_blueprint = new Cylinder(2.55 + units, MathUtils.evaluate(radius));
+
     //This is where we set the LawEdge lines into a shape (Sketch)
     var semicircle1 = new Sketch();
 	var wire = new Sketch();
@@ -136,6 +139,12 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     ferrite_recipe.append( ferrite_rod_cov );
     ferrite_recipe.append(ferrite_rod_extrude);
     ferrite_recipe.append(ePattern);
+	
+	var top_plate_recipe = new Recipe();
+	top_plate_recipe.append(top_plate_blueprint);
+
+	var bottom_plate_recipe = new Recipe();
+	bottom_plate_recipe.append(bottom_plate_blueprint);
 
     // Adding recipe to model
 	var msemi = new Model();
@@ -154,7 +163,20 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     mtconnect.setRecipe( rtconnect );
 
     var ferrite_rod_model = new Model();
-    ferrite_rod_model.setRecipe( ferrite_recipe )
+    ferrite_rod_model.setRecipe( ferrite_recipe );
+
+	var top_plate_model = new Model();
+	top_plate_model.setRecipe(top_plate_recipe);
+	
+	var bottom_plate_model = new Model();
+	bottom_plate_model.setRecipe(bottom_plate_recipe);
+
+	// Moving top and bottom plates
+	var top_plate_coords = new Cartesian3D(0 , 0, (ferrite_height - (height_difference/2)));
+	var bottom_plate_coords = new Cartesian3D(0 , 0 ,((-height_difference/2)-.0255)); // if plate in wrong spot, units aren't cm
+
+	top_plate_model.getCoordinateSystem().translate(top_plate_coords);
+	bottom_plate_model.getCoordinateSystem().translate(bottom_plate_coords);
 
     // Adding parts to the XF project + giving names
 	var surfacesemi = App.getActiveProject().getGeometryAssembly().append(msemi);
@@ -174,6 +196,12 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
 
     var surfacerodd = App.getActiveProject().getGeometryAssembly().append(ferrite_rod_model);
     surfacerodd.name = "Ferrite Rods"
+	
+	var surfacetopplate = App.getActiveProject().getGeometryAssembly().append(top_plate_model);
+	surfacetopplate.name = "top plate"
+	
+	var surfacebottomplate = App.getActiveProject().getGeometryAssembly().append(bottom_plate_model);
+	surfacebottomplate.name = "bottom plate"
 
     //This section is where we define coordinates of the wires
     var coordst = surfacetopwire.getCoordinateSystem();
@@ -184,6 +212,7 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     // Set the material
 	var pecMaterial = App.getActiveProject().getMaterialList().getMaterial( "PEC" );
     var ferriteMaterial = App.getActiveProject().getMaterialList().getMaterial( "ferrite" );
+	var aluminumMaterial = App.getActiveProject().getMaterialList().getMaterial( "aluminum" );
 		
 	App.getActiveProject().setMaterial( surfacesemi, pecMaterial );
     App.getActiveProject().setMaterial( surfacewire, pecMaterial );
@@ -191,4 +220,6 @@ function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_heig
     App.getActiveProject().setMaterial( surfaceconnect, pecMaterial );
     App.getActiveProject().setMaterial( surfacetconnect, pecMaterial );
     App.getActiveProject().setMaterial( surfacerodd, ferriteMaterial );
+	App.getActiveProject().setMaterial( surfacetopplate, aluminumMaterial);
+	App.getActiveProject().setMaterial( surfacebottomplate, aluminumMaterial);
 }

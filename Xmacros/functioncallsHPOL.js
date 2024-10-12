@@ -64,6 +64,7 @@ for(var i = indiv - 1; i < NPOP; i++)
     App.getActiveProject().getGeometryAssembly().clear();
     CreatePEC();
     CreateFerrite();
+    CreateAl();
     build_hpol(plate_num, rad, thick, arc, height, rod_h, rod_r);
     CreateAntennaSource((height/2) - feed_dist, (height/2) + feed_dist); 
     CreateGrid();
