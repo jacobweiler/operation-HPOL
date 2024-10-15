@@ -48,13 +48,14 @@ echo "Done!"
 rm -f $RunXmacrosDir/output.xmacro
 
 # Writing new xmacro
-echo "var NPOP = $NPOP;" >> $RunXmacrosDir/output.xmacro
+echo "Writing output.xmacro!" 
+
+echo "var popsize = $NPOP;" >> $RunXmacrosDir/output.xmacro
 echo "var gen = \"$gen\";" >> $RunXmacrosDir/output.xmacro
 echo "var WorkingDir = \"$WorkingDir\";" >> $RunXmacrosDir/output.xmacro
 echo "var RunDir = \"$RunDir\";" >> $RunXmacrosDir/output.xmacro
-echo "for (var k = $(($gen*$NPOP + 1)); k <= $(($gen*$NPOP+$NPOP)); k++){" >> $RunXmacrosDir/output.xmacro
 
-cat $WorkingDir/Xmacros/shortened_outputmacroskeleton.txt >> $RunXmacrosDir/output.xmacro
+cat $XmacrosDir/shortened_outputmacroskeleton.js >> $RunXmacrosDir/output.xmacro
 
 xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/output.xmacro || true --splash=false
 

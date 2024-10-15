@@ -22,6 +22,7 @@ def parse_args():
                         type=float,default=1)
     parser.add_argument("-bh_penalty", help="Borehole Penalty", 
                         type=int, default=0)
+    parser.add_argument("-vpol_type", help="VPol Type", type=int, default=0)
     return parser.parse_args()
 
 
@@ -109,9 +110,23 @@ def main(g):
             indiv_higherror = np.sqrt(sumsquarehigherror) / g.ara_processes
 
         penalty = 1
-        current_indiv = data_list[i-1]
-        current_radius = current_indiv[1]
-        max_xy = float(current_radius) + 0.02
+        # Calculate the penalty for the individual
+        if g.vpol_type == 0: # NSECTIONS = 1
+            # Double check this
+            current_indiv = data_list[i-1]
+            current_radius = current_indiv[1]
+        elif g.vpol_type == 1: # NSECTIONS = 0, SEPARATION = 1
+            # Double check this
+            current_indiv = data_list[i-1]
+            current_radius = current_indiv[1]
+        elif g.vpol_type == 2: # NSECTIONS = 0, SEPARATION = 0
+            # Double check this
+            current_indiv = data_list[i-1]  
+            current_radius = current_indiv[1]
+        else: # HPOL
+            current_indiv = data_list[i-1]
+            current_radius = current_indiv[1]
+            max_xy = float(current_radius) + 0.02
         
         if max_xy >= bhrad and g.bh_penalty == 1:
             penalty = np.exp(-(g.scalefactor * (max_xy - bhrad) ** 2))

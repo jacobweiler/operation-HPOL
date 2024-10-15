@@ -5,7 +5,7 @@ Seeds=10			## This is how many AraSim jobs will run for each individual## the nu
 FREQS=60				## the number frequencies being iterated over in XF (Currectly only affects the output.xmacro loop)
 FreqStart=83.33     ## Start of Frequency Range
 FreqStep=16.67      ## Step Size of Frequency
-NNT=30000			## Number of Neutrinos Thrown in AraSim   
+NNT=30000			## Number of Neutrinos Thrown in AraSim in total  
 exp=18				## exponent of the energy for the neutrinos in AraSim
 ScaleFactor=1.0			## ScaleFactor used when punishing fitness scores of antennae larger than the drilling holes
 GeoFactor=1			## This is the number by which we are scaling DOWN our antennas. This is passed to many files
@@ -37,4 +37,5 @@ RANK=0				    ## Percent of individuals selected through rank
 ELITE=0				    ## Elite function on/off (1/0)
 ############## JOB SUBMISSION #######################################################################################
 SingleBatch=0       ## 1 to submit a single batch for XF jobs (each job running for n antennas)
-maxJobs=100
+maxJobs=100         ## max number of jobs submitted per user on OSC
+threads_per_ara_job=40 ## Number of cores used per AraSim Job

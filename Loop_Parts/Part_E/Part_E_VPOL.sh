@@ -17,26 +17,18 @@ RunName=$2
 gen=$3
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
-if [ $ParallelAra -eq 1 ]; then
-	# maybe change 40 to a variable that's passed in
-	ara_processes=$((Seeds*40))
-else
-	ara_processes=$Seeds
-fi
+ara_processes=$((Seeds*threads_per_ara_job))
 
 echo "ara_processes: " $ara_processes
 
 module load python/3.7-2019.10
 
 # Moving Results to Generation_Data Folder in run directory
-cd $WorkingDir
-cp ARA_Bicone_Data/AraOut_Actual_Bicone_Fixed_Polarity_2.9M_NNU.txt Run_Outputs/$RunName/Generation_Data/Generation_${gen}/AraOut_ActualBicone.txt
-
-cd Antenna_Performance_Metric/
+cd $WorkingDir/Antenna_Performance_Metric/
 
 echo 'Starting fitness function calculating portion...'
-mkdir -m775 $WorkingDir/Run_Outputs/$RunName/Root_Files/Root_Files_${gen}
-mv *.root $WorkingDir/Run_Outputs/$RunName/Root_Files/Root_Files_${gen}/
+#mkdir -m775 $WorkingDir/Run_Outputs/$RunName/Root_Files/Root_Files_${gen}
+#mv *.root $WorkingDir/Run_Outputs/$RunName/Root_Files/Root_Files_${gen}/
 
 for i in `seq $indiv $NPOP`; do
     InputFiles="${InputFiles}AraOut_${gen}_${i}.txt "
@@ -45,42 +37,36 @@ done
 if [ $NSECTIONS -eq 1 ]; then
 	# Compiling and Run
 	g++ -std=c++11 fitnessFunction_ARA.cpp -o fitnessFunction.exe
-	./fitnessFunction.exe $NPOP $ara_processes $ScaleFactor $WorkingDir/Generation_Data/generationDNA.csv $GeoFactor $InputFiles 
+	./fitnessFunction.exe $NPOP $ara_processes $ScaleFactor $RunDir/Generation_Data/generationDNA.csv $GeoFactor $InputFiles $RunDir/Generation_Data
 else
 	if [ $SEPARATION -eq 1 ]; then
         # Compile and Run
 		g++ -std=c++11 fitnessFunction_ARA_Sep.cpp -o fitnessFunction_Sep.exe
-		./fitnessFunction_Sep.exe $NPOP $ara_processes $ScaleFactor $WorkingDir/Generation_Data/generationDNA.csv $GeoFactor $InputFiles 
+		./fitnessFunction_Sep.exe $NPOP $ara_processes $ScaleFactor $RunDir/Generation_Data/generationDNA.csv $GeoFactor $InputFiles $RunDir/Generation_Data
 	else
         # Compile and Run
 		g++ -std=c++11 fitnessFunction_ARA_Asym.cpp -o fitnessFunction_asym.exe
-		./fitnessFunction_asym.exe $NPOP $ara_processes $ScaleFactor $WorkingDir/Generation_Data/generationDNA.csv $GeoFactor $InputFiles 
+		./fitnessFunction_asym.exe $NPOP $ara_processes $ScaleFactor $RunDir/Generation_Data/generationDNA.csv $GeoFactor $InputFiles $RunDir/Generation_Data
 	fi
 fi
 
-cp fitnessScores.csv $WorkingDir/Run_Outputs/$RunName/Generation_Data/Generation_${gen}/${gen}_fitnessScores.csv
-mv fitnessScores.csv $WorkingDir/Generation_Data/
+cp $RunDir/Generation_Data/Generation_$gen/fitnessScores.csv $RunDir/Generation_Data/Generation_${gen}/${gen}_fitnessScores.csv
 
-cp vEffectives.csv $WorkingDir/Run_Outputs/$RunName/Generation_Data/Generation_${gen}/${gen}_vEffectives.csv
-mv vEffectives.csv $WorkingDir/Generation_Data/
+cp $RunDir/Generation_Data/Generation_$gen/vEffectives.csv $RunDir/Generation_Data/Generation_${gen}/${gen}_vEffectives.csv
 
-cp errorBars.csv $WorkingDir/Run_Outputs/$RunName/Generation_Data/Generation_${gen}/${gen}_errorBars.csv
-mv errorBars.csv $WorkingDir/Generation_Data/
+cp $RunDir/Generation_Data/Generation_$gen/errorBars.csv $RunDir/Generation_Data/Generation_${gen}/${gen}_errorBars.csv
 
 #Plotting software for Veff(for each individual) vs Generation
-python Veff_Plotting.py $WorkingDir/Run_Outputs/$RunName $WorkingDir/Run_Outputs/$RunName $gen $NPOP $Seeds 
+python Plotting/Veff_Plotting.py $WorkingDir/Run_Outputs/$RunName $WorkingDir/Run_Outputs/$RunName $gen $NPOP $Seeds 
 
 cd $WorkingDir
 
-if [ $gen -eq 0 ]; then
-	rm -f Generation_Data/runData.csv
-fi
-
 if [ $indiv -eq $NPOP ]; then
-	cp Generation_Data/runData.csv $WorkingDir/Run_Outputs/$RunName/runData_$gen.csv
+	cp $RunDir/Generation_Data/runData.csv $WorkingDir/Run_Outputs/$RunName/runData_$gen.csv
 fi
 
-python Data_Generators/gensData_asym.py $gen $NSECTIONS $NPOP Generation_Data
+python Data_Generators/gensData_asym.py $gen $NSECTIONS $NPOP $RunDir/Generation_Data
+
 cd Antenna_Performance_Metric
 next_gen=$((gen+1))
 
@@ -116,15 +102,10 @@ fi
 echo 'Congrats on getting a fitness score!'
 
 cd $WorkingDir/Run_Outputs/$RunName
-mkdir -m777 AraOut/AraOut_$gen
+mkdir -m777 AraSim_Outputs/${gen}_AraSim_Outputs
 
-cd $WorkingDir/Antenna_Performance_Metric
-for i in `seq 1 $NPOP`; do
-    for j in `seq 1 $ara_processes`; do
-        mv AraOut_${gen}_${i}_${j}.txt $WorkingDir/Run_Outputs/$RunName/AraOut/AraOut_${gen}/AraOut_${gen}_${i}_${j}.txt
-	done
-done 
-
+# Move only the files, excluding directories
+find $RunDir/AraSim_Outputs/ -maxdepth 1 -type f -exec mv {} $RunDir/AraSim_Outputs/${gen}_AraSim_Outputs/ \;
 cd $WorkingDir
 
 # I still need to add these changes into the asymmetric algorithm

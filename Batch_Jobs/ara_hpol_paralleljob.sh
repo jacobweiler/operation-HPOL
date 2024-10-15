@@ -9,6 +9,8 @@
 
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
+source /fs/ess/PAS1960/BiconeEvolutionOSC/new_root/new_root_setup.sh
+
 cd $AraSimDir
 
 threads=40
@@ -29,7 +31,7 @@ gain_file="${RunDir}/txt_files/a_${num}.txt "
 
 echo "gain file is $gain_file"
 
-sed -e "s|num_nnu|$NNT|" -e "s|n_exp|$exp|" -e "s|current_seed|$SpecificSeed|" -e "s|hpol_gain|$gain_file|" ${AraSimExec}/SETUP/setup_dummy_hpol.txt > $TMPDIR/setup.txt
+sed -e "s|num_nnu|$nnt_per_ara|" -e "s|n_exp|$exp|" -e "s|current_seed|$SpecificSeed|" -e "s|hpol_gain|$gain_file|" ${AraSimExec}/SETUP/setup_dummy_hpol.txt > $TMPDIR/setup.txt
 
 # starts running $threads processes of AraSim
 echo "Starting AraSim processes"

@@ -30,7 +30,7 @@ double GeoScaleFactor; // factor by which we are scaling down our antennas
 
 void Read(char* filename, ifstream& inputFile, string* araLineArray, vector<double> &fitnessScores, int individualCounter, double scaleFactor, double* antennaOuterRadii, int NSEEDS, vector<double> &vEffList, vector<double> &lowErrorBars, vector<double> &highErrorBars, double GeoScaleFactor);
 
-void WriteFitnessScores(vector<double> fitnessScores, vector<double> vEffList, vector<double> lowErrorBars, vector<double> highErrorBars, int NPOP);
+void WriteFitnessScores(vector<double> fitnessScores, vector<double> vEffList, vector<double> lowErrorBars, vector<double> highErrorBars, int NPOP, char* outputdirectory);
 
 /** MAIN FUNCTION **/
 
@@ -42,6 +42,7 @@ int main(int argc, char** argv)
 	double scaleFactor = stod(argv[3]); // scaling variable for the exponent in the constraint. 
 	char* antennaFile = argv[4];
 	double GeoScaleFactor = stod(argv[5]); // Factor by which we scale down the antenna dimensions
+	char* outputdirectory = argv[6];
 	//Don't worry about the fact that the loop passes 6 arguments and this declares 5!
 	//We call it later in the read function using argv[indivial+5] to read the input file
 	// Quick variable declarations:
@@ -111,7 +112,7 @@ int main(int argc, char** argv)
 				araLineArray = NULL;
 			}
 			
-			WriteFitnessScores(fitnessScores, vEffList, lowErrorBars, highErrorBars, NPOP);
+			WriteFitnessScores(fitnessScores, vEffList, lowErrorBars, highErrorBars, NPOP, outputdirectory);
 	cout << "Fitness scores successfully written." << endl << "Fitness function concluded." << endl;
 	}
 	delete[] antennaRadii;
@@ -217,10 +218,11 @@ void Read(char* filename, ifstream& inputFile, string* araLineArray, vector<doub
 
 }
 
-void WriteFitnessScores(vector<double> fitnessScores, vector<double> vEffList, vector<double> lowErrorBars, vector<double> highErrorBars, int NPOP)
+void WriteFitnessScores(vector<double> fitnessScores, vector<double> vEffList, vector<double> lowErrorBars, vector<double> highErrorBars, int NPOP, char* outputdirectory)
 {
 	ofstream fitnessFile;
-	fitnessFile.open("fitnessScores.csv");
+	string outputdir = outputdirectory;
+	fitnessFile.open(outputdir + "/fitnessScores.csv");
 	fitnessFile << "The Ohio State University GENETIS Data." << endl;
 	fitnessFile << "Current generation's fitness scores:" << endl;
 	cout << fitnessScores[0] << endl;
@@ -232,7 +234,7 @@ void WriteFitnessScores(vector<double> fitnessScores, vector<double> vEffList, v
 	fitnessFile.close();
 
 	ofstream vEffFile;
-	vEffFile.open("vEffectives.csv");
+	vEffFile.open(outputdir + "/vEffectives.csv");
 	vEffFile << "The Ohio State University GENETIS Data." << endl;
 	vEffFile << "Current generation's vEff scores:" << endl;
 	
@@ -245,7 +247,7 @@ void WriteFitnessScores(vector<double> fitnessScores, vector<double> vEffList, v
 
 
 	ofstream errorFile;
-	errorFile.open("errorBars.csv");
+	errorFile.open(outputdir + "/errorBars.csv");
 	errorFile << "The Ohio State University GENETIS Data." << endl;
 	errorFile << "Current generation's errorBar scores:" << endl;
 	

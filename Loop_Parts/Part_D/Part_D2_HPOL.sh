@@ -38,7 +38,7 @@ while [ "$nFiles" != "$totPop" ]; do
 				cd $WorkingDir
 				output_name=$RunDir/AraSim_Outputs/${current_file}.output
 				error_name=$RunDir/AraSim_Errors/${current_file}.error
-				sbatch --export=ALL,gen=$gen,num=${current_individual},WorkingDir=$WorkingDir,RunName=$RunName,Seeds=${current_seed},AraSimDir=$AraSimExec --job-name=AraSimCall_AraSeed_$gen_${current_individual}_${current_seed}.run --output=$output_name --error=$error_name Batch_Jobs/ara_hpol_paralleljob.sh
+				sbatch --export=ALL,gen=$gen,num=${current_individual},WorkingDir=$WorkingDir,RunName=$RunName,Seeds=${current_seed},AraSimDir=$AraSimExec,nnt_per_ara=$nnt_per_ara --job-name=AraSimCall_AraSeed_$gen_${current_individual}_${current_seed}.run --output=$output_name --error=$error_name Batch_Jobs/ara_hpol_paralleljob.sh
 
 				cd Run_Outputs/$RunName/AraSimFlags/
 
