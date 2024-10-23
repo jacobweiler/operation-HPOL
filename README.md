@@ -15,3 +15,13 @@ Multiple Versions of Loop:
 5. We need to go to the branch with the current HPOL and VPOL implementations so go into the Shared-Code directory with `cd Shared-Code/` and then type `git checkout -b add_hpol origin/add_hpol`
    
 Now you should be all set to run the loop. 
+
+# How to run Ara Loop
+1. Install Ara Loop (see previous instructions)
+2. Go into and edit `setup.sh` to meet your wanted run parameters, save them.
+3. In main directory type `./Loop_Scripts/Ara_Loop.sh RunName` and press enter. `RunName` is whatever your desired name of your current run, running this command with a previously used run name will result in your starting that run off from where it left off.
+4. Press any key to start the loop. You should be going through creating the initial population.
+5. XFdtd will open to create individuals, when first running a new run a popup will appear. **Press No**.
+6. Now the loop will be running!
+
+Note: The setup.sh file for each run after starting is copied and used from the `Run_Outputs/RunName` directory, so if you need to change parameters mid-run change the setup file in `Run_Outputs/RunName/setup.sh` where RunName is the name you gave the run. 
