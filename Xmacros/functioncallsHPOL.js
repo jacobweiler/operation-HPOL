@@ -1,8 +1,4 @@
 /********************************************* Function Calls **************************************************/
-var file = new File(path);
-file.open(1);
-var generationDNA = file.readAll();
-
 // Lists to hold the genes
 var num_plates =[]; // Number of plates
 var radius = []; // Radius of the antenna

@@ -1,3 +1,4 @@
+// hpol building script
 function build_hpol(num_plates, radius, plate_thickness, arclength, antenna_height, ferrite_height, ferrite_radius) 
 {
     // Scaling the variables because you can't input the units in this method of building 

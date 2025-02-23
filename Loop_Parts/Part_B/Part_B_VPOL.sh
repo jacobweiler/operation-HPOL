@@ -1,21 +1,13 @@
-#!/bin/bash
-########    XF Simulation Software (B)     ########################################################################################## 
+########  XF (B)  ######################################################################################################### 
 #
 #
-#     1. Prepares output.xmacro with generic parameters such as :: 
-#             I. Antenna type
-#             II. Population number
-#             III. Grid size
+#      1. Takes the .py dictionaries with the genes for each individual and creates meshes for each one in XF
 #
+#      2. Create the models for each antenna in XF
 #
-#     2. Prepares simulation_PEC.xmacro with information such as:
-#             I. Each generation antenna parameters
+#      3. Run the simulations for each antenna in XF
 #
-#
-#     3. Runs XF and loads XF with both xmacros. 
-#
-#
-###################################################################################################################################### 
+#################################################################################################################################################### 
 # variables
 WorkingDir=$1
 RunName=$2
@@ -26,9 +18,11 @@ source $WorkingDir/Run_Outputs/$RunName/setup.sh
 mkdir -m777 $RunDir/Antenna_Images/${gen}
 mkdir -m777 $RunDir/uan_files/${gen}_uan_files 2> /dev/null
 
+cd $WorkingDir
+
 # Delete Simulation directories if they exist
-for i in $(seq 1 $XFCOUNT); do
-	individual_number=$(($gen*$XFCOUNT + $i))
+for i in $(seq 1 $NPOP); do
+	individual_number=$(($gen*$NPOP + $i))
 	indiv_dir_parent=$XFProj/Simulations/$(printf "%06d" $individual_number)
 
 	if [ -d $indiv_dir_parent ]; then
@@ -37,121 +31,70 @@ for i in $(seq 1 $XFCOUNT); do
 done
 
 # store the next simulation number in the hidden file
-if [[ $gen -ne 0 ]]
-then
-	echo $(($gen*$XFCOUNT + 1)) > $XFProj/Simulations/.nextSimulationNumber
+if [[ $gen -ne 0 ]]; then
+	echo $(($gen*$NPOP + 1)) > $XFProj/Simulations/.nextSimulationNumber
 fi
 
 chmod -R 777 $XmacrosDir 2> /dev/null
 
-if [ $database_flag -eq 1 ]; then 
-    Database=$WorkingDir/Database/database.txt
-    NewDataFile=$WorkingDir/Database/newData.txt
-    RepeatDataFile=$WorkingDir/Database/repeatData.txt
-    GenDNA=$WorkingDir/Run_Outputs/$RunName/${gen}_generationDNA.csv
-fi
+#get rid of the simulation_PEC.xmacro that already exists
+rm -f $RunXacrosDir/simulation_PEC.xmacro
+touch $RunXmacrosDir/simulation_PEC.xmacro
 
-cd $XmacrosDir
-freqlist="8333 10000 11667 13333 15000 16667 18334 20000 21667 23334 25000 26667 28334 30000 31667 33334 35000 36667 38334 40001 41667 43334 45001 46667 48334 50001 51668 53334 55001 56668 58334 60001 61668 63334 65001 66668 68335 70001 71668 73335 75001 76668 78335 80001 81668 83335 85002 86668 88335 90002 91668 93335 95002 96668 98335 100000 101670 103340 105000 106670"
-
-# Getting rid of the old simulation_PEC.xmacro
-rm -f $RunXmacrosDir/simulation_PEC.xmacro
-
+# Create the simulation_PEC.xmacro
 echo "var NPOP = $NPOP;" > $RunXmacrosDir/simulation_PEC.xmacro
 echo "var indiv = $indiv;" >> $RunXmacrosDir/simulation_PEC.xmacro
-echo "var freq " | tr "\n" "=" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var gen = $gen;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var workingdir = \"$WorkingDir\";" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var RunName = \"$RunName\";" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var freq_start = $FreqStart;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var freq_step = $FreqStep;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var freqCoefficients = $FREQS;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var CURVED = $CURVED;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var NSECTIONS = $NSECTIONS;" >> $RunXmacrosDir/simulation_PEC.xmacro
+echo "var evolve_sep = $SEPARATION;" >> $RunXmacrosDir/simulation_PEC.xmacro
 
-# Reading in Frequency list
-for i in $freqlist; do
-	if [ $i -eq 8333 ]; then
-		echo " " | tr "\n" "[" >> $RunXmacrosDir/simulation_PEC.xmacro
-    fi
-
-	k=$((1*$i))
-
-	if [ $i -ne 106670 ]; then
-		echo "scale=2 ; $k/100 " | bc | tr "\n" "," >> $RunXmacrosDir/simulation_PEC.xmacro
-		echo "" | tr "\n" " " >> $RunXmacrosDir/simulation_PEC.xmacro
-	else 
-		echo "scale=2 ; $k/100 " | bc | tr "\n" "]" >> $RunXmacrosDir/simulation_PEC.xmacro
-		echo " " >> $RunXmacrosDir/simulation_PEC.xmacro
-	fi
-done
-
-if [[ $gen -eq 0 && $indiv -eq 1 ]]; then
-    echo "if(indiv==1){" >> $RunXmacrosDir/simulation_PEC.xmacro	
-    echo "App.saveCurrentProjectAs(\"$RunDir/$RunName\");" >> $RunXmacrosDir/simulation_PEC.xmacro
-    echo "}" >> $RunXmacrosDir/simulation_PEC.xmacro
+if [ $gen -eq 0 ]; then
+	echo "App.saveCurrentProjectAs(\"$WorkingDir/Run_Outputs/$RunName/$RunName\");" >> $RunXmacrosDir/simulation_PEC.xmacro
 fi
 
-if [ $CURVED -eq 0 ]; then
-    if [ $NSECTIONS -eq 1 ]; then
-        cat simulationPECmacroskeleton_GPU.txt >> $RunXmacrosDir/simulation_PEC.xmacro 
-        cat simulationPECmacroskeleton2_GPU.txt >> $RunXmacrosDir/simulation_PEC.xmacro
-    else
-        cat simulationPECmacroskeleton_Sep.txt >> $RunXmacrosDir/simulation_PEC.xmacro
-        cat simulationPECmacroskeleton2_Sep.txt >> $RunXmacrosDir/simulation_PEC.xmacro
-    fi
-else
-    cat simulationPECmacroskeleton_curved.txt >> $RunXmacrosDir/simulation_PEC.xmacro
-    cat simulationPECmacroskeleton2_curved.txt >> $RunXmacrosDir/simulation_PEC.xmacro
-fi
+cat $XmacrosDir/headerVPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/functioncallsVPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/build_vpol.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/CreatePEC.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/CreateVPOLAntennaSource.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/CreateGridVPOL.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/CreateSensors.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/CreateAntennaSimulationData.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/QueueSimulation.js >> $RunXmacrosDir/simulation_PEC.xmacro
+cat $XmacrosDir/MakeImage.js >> $RunXmacrosDir/simulation_PEC.xmacro
 
-sed -i "s+fileDirectory+${RunDir}/Generation_Data+" $RunXmacrosDir/simulation_PEC.xmacro
+# Run XF simulation PEC
+xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/simulation_PEC.xmacro || true
 
-if [[ $gen -ne 0 && $i -eq 1 ]]
+chmod -R 775 $XmacrosDir 2> /dev/null
+
+# Submit the Batch XF Job to solve the simulations
+if [ $NPOP -lt $num_keys ]
 then
-	cd $XFProj
-	rm -rf Simulations
-fi
-
-xfdtd $XFProj --execute-macro-script=$RunXmacrosDir/simulation_PEC.xmacro || true  
-
-cd $WorkingDir 
-
-if [ $database_flag -eq 1 ]; then
-    # we're going to implement the database
-    # this means we want to be able to read a specific list of individuals to run
-    # this data will be stored in a file created by the dataAdd.exe
-    cd $WorkingDir/Database
-    if [ $NSECTIONS -eq 1 ]; then 
-        ./dataCheck.exe $NPOP $GenDNA $Database $NewDataFile $RepeatDataFile 3
-    else
-        ./dataCheck.exe $NPOP $GenDNA $Database $NewDataFile $RepeatDataFile
-    fi 
-    echo $NPOP
-    echo $GenDNA
-    echo $Database
-    echo $NewDataFile
-    echo $RepeatDataFile
-
-    FILE=$RepeatDataFile
-
-    FILE=$NewDataFile # the file telling us which ones to run
-    passArray=()
-
-    while read f1; do
-        passArray+=($f1)
-    done < $FILE
-
-    length=${#passArray[@]}
-
-    if [ $length -lt $num_keys ]; then
-        batch_size=$length
-    else
-        batch_size=$num_keys
-    fi
+	batch_size=$NPOP
 else
-    if [ $NPOP -lt $num_keys ]; then
-        batch_size=$NPOP
-    else
-        batch_size=$num_keys
-    fi
+	batch_size=$num_keys
 fi
 
-## We'll make the run name the job name
-## This way, we can use it in the SBATCH commands
-sbatch  --array=1-${NPOP}%${batch_size} \
-        --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,XmacrosDir=$XmacrosDir,XFProj=$XFProj,NPOP=$NPOP,indiv=$individual_number,indiv_dir=$indiv_dir,gen=${gen} \
-        --job-name=${RunName} \
-        Batch_Jobs/GPU_XF_Job.sh
+# make sure there are no stray jobs from previous runs
+scancel -n ${RunName}
+
+# Numbers through testing
+if [ $SingleBatch -eq 1 ]; then
+	XFCOUNT=$batch_size
+	job_time="15:00:00"
+else
+	XFCOUNT=$NPOP
+	job_time="04:00:00"
+fi
+
+echo "Submitting XF jobs with batch size $batch_size"
+sbatch  --array=1-${XFCOUNT}%${batch_size} \
+        --export=ALL,WorkingDir=$WorkingDir,RunName=$RunName,indiv=$individual_number,gen=${gen},batch_size=$batch_size \
+        --job-name=${RunName} --time=${job_time} $WorkingDir/Batch_Jobs/GPU_XF_Job.sh 

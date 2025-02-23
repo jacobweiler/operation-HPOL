@@ -103,14 +103,8 @@ for gen in `seq $InitialGen $TotalGens`; do
 
 	## Part A ##
     if [ $state -eq 1 ]; then
-        if [ $antenna == "VPOL" ]; then
-            ./Loop_Parts/Part_A/Part_A_VPOL.sh $WorkingDir $RunName $gen
-        elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_A/Part_A_HPOL.sh $WorkingDir $RunName $gen
-        else
-            echo "ERROR: Antenna type not recognized"
-            exit 1
-        fi
+        ./Loop_Parts/Part_A/Part_A.sh $WorkingDir $RunName $gen
+
         state=2
 
         ./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
@@ -133,14 +127,8 @@ for gen in `seq $InitialGen $TotalGens`; do
 		
 	## Part B2 ##
 	if [ $state -eq 3 ]; then
-        if [ $antenna == "VPOL" ]; then
-            ./Loop_Parts/Part_B/Part_B2_VPOL.sh $WorkingDir $RunName $gen
-        elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_B/Part_B2_HPOL.sh $WorkingDir $RunName $gen
-        else
-            echo "ERROR: Antenna type not recognized"
-            exit 1
-        fi
+        ./Loop_Parts/Part_B/Part_B2.sh $WorkingDir $RunName $gen
+
 		state=4
 
 		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv
@@ -194,14 +182,8 @@ for gen in `seq $InitialGen $TotalGens`; do
 
 	## Part E ##
 	if [ $state -eq 7 ]; then
-        if [ $antenna == "VPOL" ]; then
-            ./Loop_Parts/Part_E/Part_E_VPOL.sh $WorkingDir $RunName $gen
-        elif [ $antenna == "HPOL" ]; then
-            ./Loop_Parts/Part_E/Part_E_HPOL.sh $WorkingDir $RunName $gen
-        else
-            echo "ERROR: Antenna type not recognized"
-            exit 1
-        fi
+		./Loop_Parts/Part_E/Part_E
+		
 		state=8
 
 		./Loop_Scripts/SaveState_Prototype.sh $gen $state $RunName $indiv 
