@@ -24,7 +24,8 @@ if [ $DEBUG_MODE -eq 0 ]; then
 	num_jobs=$((NPOP * Seeds))
 	# Calculate nnt_per_ara
 	nnt_per_ara=$((NNT / (Seeds * threads_per_ara_job)))
-
+	
+	mkdir -m777 $RunDir/AraSim_Outputs/${gen}_AraSim_Outputs
 	# Output the result of the calculation
 	echo "NNT per ARA: $nnt_per_ara"
 

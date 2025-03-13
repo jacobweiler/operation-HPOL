@@ -70,7 +70,7 @@ def main(g):
     # Opening Generation DNA file and read in the radius then add .02 for the thickness of plates
     # Read the file and parse each line into its own list of entries
     data_list = []
-    file_path = rundir / "Generation_Data" / f"{g.gen}_generationDNA.csv"
+    file_path = rundir / f"Generation_Data/Generation_{g.gen}/{g.gen}_generationDNA.csv"
     with open(file_path, 'r') as file:
         for line in file:
             # Strip newline characters and split the line by comma
@@ -90,7 +90,7 @@ def main(g):
         for j in range(1, g.ara_processes + 1):
             filename = rundir / file_tail(job, g.gen, j, indiv=i)
             veff, errorplus, errorminus = parse_ara_output(filename)
-            
+            print(veff)
             if veff is None:
                 seeds_successful -= 1
                 continue
@@ -114,15 +114,18 @@ def main(g):
         if g.vpol_type == 0: # NSECTIONS = 1
             # Double check this
             current_indiv = data_list[i-1]
-            current_radius = current_indiv[1]
+            current_radius = current_indiv[0]
+            max_xy  = current_radius
         elif g.vpol_type == 1: # NSECTIONS = 0, SEPARATION = 1
             # Double check this
             current_indiv = data_list[i-1]
-            current_radius = current_indiv[1]
+            current_radius = current_indiv[0]
+            max_xy  = current_radius
         elif g.vpol_type == 2: # NSECTIONS = 0, SEPARATION = 0
             # Double check this
             current_indiv = data_list[i-1]  
-            current_radius = current_indiv[1]
+            current_radius = current_indiv[0]
+            max_xy  = current_radius
         else: # HPOL
             current_indiv = data_list[i-1]
             current_radius = current_indiv[1]
@@ -135,7 +138,7 @@ def main(g):
             csv_dir = rundir / "tempFiles" / f"job_{job}"
             penalty_file = csv_dir / f"{job}_penalty.csv"
         else:
-            csv_dir = rundir / "Generation_Data"
+            csv_dir = rundir / f"Generation_Data"
             penalty_file = csv_dir / f"{g.gen}_penalty.csv"
         
         with open(penalty_file, "a") as file:
@@ -151,7 +154,7 @@ def main(g):
         lowerrors.append(indiv_lowerror)
         higherrors.append(indiv_higherror)
 
-    output_dir = rundir / ("Generation_Data" if job == -1 else f"tempFiles/job_{job}")
+    output_dir = rundir / (f"Generation_Data" if job == -1 else f"tempFiles/job_{job}")
 
     error_array = np.column_stack((higherrors, lowerrors))
     fit_error_array = np.column_stack((fit_higherrors, fit_lowerrors))

@@ -1,15 +1,15 @@
 ####### GENERAL PARAMS ###############################################################################################
 TotalGens=1			## number of generations (after initial) to run through
-NPOP=2				## number of individuals per generation; please keep this value below 99
+NPOP=1				## number of individuals per generation; please keep this value below 99
 Seeds=10			## This is how many AraSim jobs will run for each individual## the number frequencies being iterated over in XF (Currectly only affects the output.xmacro loop)
 FREQS=60				## the number frequencies being iterated over in XF (Currectly only affects the output.xmacro loop)
 FreqStart=83.33     ## Start of Frequency Range
 FreqStep=16.67      ## Step Size of Frequency
-NNT=30000			## Number of Neutrinos Thrown in AraSim in total  
+NNT=3000000			## Number of Neutrinos Thrown in AraSim in total  
 exp=18				## exponent of the energy for the neutrinos in AraSim
 ScaleFactor=1.0			## ScaleFactor used when punishing fitness scores of antennae larger than the drilling holes
 GeoFactor=1			## This is the number by which we are scaling DOWN our antennas. This is passed to many files
-num_keys=4			## how many XF keys we are letting this run use
+num_keys=1			## how many XF keys we are letting this run use
 database_flag=0			## 0 if not using the database, 1 if using the database
 DEBUG_MODE=0			## 1 for testing (ex: send specific seeds), 0 for real runs
 SpecificSeed=32000      ## Specific Seed used for AraSim

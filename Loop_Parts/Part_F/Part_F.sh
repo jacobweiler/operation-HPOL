@@ -1,51 +1,49 @@
 #!/bin/bash
-########  Fitness Score Generation (E)  ######################################################################################################### 
+########  Plotting (F)  ############################################################################################################################ 
 #
 #
-#      1. Takes AraSim data and cocatenates each file name into one string that is then used to generate fitness scores 
-#
-#      2. Then gensData.py extracts useful information from generationDNA.csv and fitnessScores.csv, and writes to maxFitnessScores.csv and runData.csv
-#
-#      3. Copies each .uan file from the Antenna_Performance_Metric folder and moves to Run_Outputs/$RunName folder
+#      1. Plots in 3D and 2D of current and all previous generation's scores. Saves the 2D plots. Extracts data from $RunName folder in all of the i_generationDNA.csv files. Plots to same directory.
 #
 #
 #################################################################################################################################################### 
-
-#variables
+# variables
 WorkingDir=$1
 RunName=$2
 gen=$3
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
+# Current Plotting Software
+
+cd $WorkingDir
+
 module load python/3.7-2019.10
 
-cd $WorkingDir
+# Plotting Fitness vs generation plot (for every generation not 0)
+if [ $gen -ne 0 ]; then
+    python Antenna_Performance_Metric/Plotting/FScorePlot.py $RunDir $RunDir $NPOP $gen
+fi 
+# For every generation, getting the Top 3 Individuals (can be adjusted easily..)
+# We want gain at multiple frequencies, frequency vs gain plot at different directions, PoR plots (theta_nu and theta_RF), VSWR and S11 Plots ETC 
 
-cd Antenna_Performance_Metric/
-
-echo 'Starting fitness function calculating portion...'
-
-ara_processes=$((threads * Seeds))
-
-python ara_fitness.py $WorkingDir $RunName $gen $NPOP $ara_processes $ScaleFactor -geoscalefactor $GeoFactor
-
-cd $WorkingDir
-
-if [ $gen -eq 0 ]; then
-	rm -f Generation_Data/runData.csv
+if [ $gen -eq 0 ]; then 
+    mkdir -m777 $RunDir/best_indivs/
+    mkdir -m777 $RunDir/best_indivs/generational_bests
 fi
+# Get top 3 best individuals, creating a document for this generation that documents top3 for gen, then checks against current top 3 and replaces, if better
 
-if [ $indiv -eq $NPOP ]; then
-	cp Generation_Data/runData.csv $WorkingDir/Run_Outputs/$RunName/runData_$gen.csv
-fi
+# If new individuals in top 3 (check which generation each best is from, if current then do plots), do wanted automatic plots. 
+# do need to pass settings for hpol/vpol specific plots
 
-echo 'Congrats on getting a fitness score!'
+    # Frequency Gain Plots
 
-mkdir -m777 $RunDir/Generation_Data/Generation_${gen}
-mv $RunDir/Generation_Data/${gen}_penalty.csv $RunDir/Generation_Data/Generation_${gen}/
-mv $RunDir/Generation_Data/${gen}_generationDNA.csv $RunDir/Generation_Data/Generation_${gen}/
-mv $RunDir/Generation_Data/${gen}_Veff.csv $RunDir/Generation_Data/Generation_${gen}/
-mv $RunDir/Generation_Data/${gen}_Veff_Error.csv $RunDir/Generation_Data/Generation_${gen}/
-mv $RunDir/Generation_Data/${gen}_Fitness_Error.csv $RunDir/Generation_Data/Generation_${gen}/
-cp $RunDir/Generation_Data/${gen}_fitnessScores.csv $RunDir/Generation_Data/Generation_${gen}/
-cp $RunDir/Generation_Data/${gen}_population.pkl $RunDir/Generation_Data/Generation_${gen}/
+    # Frequency vs Gain Plots
+
+    # VSWR and S11 Plots
+
+    # PoR Plots
+
+
+
+
+echo 'All Plots done, next generation commence!'
+

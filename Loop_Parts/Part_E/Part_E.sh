@@ -15,6 +15,7 @@
 WorkingDir=$1
 RunName=$2
 gen=$3
+indiv=$4
 source $WorkingDir/Run_Outputs/$RunName/setup.sh
 
 module load python/3.7-2019.10
@@ -25,9 +26,10 @@ cd Antenna_Performance_Metric/
 
 echo 'Starting fitness function calculating portion...'
 
+threads=39
 ara_processes=$((threads * Seeds))
 
-python ara_fitness.py $WorkingDir $RunName $gen $NPOP $ara_processes $ScaleFactor -geoscalefactor $GeoFactor
+python ara_fitness.py $WorkingDir $RunName $gen $NPOP $ara_processes $ScaleFactor -geoscalefactor $GeoFactor -bh_penalty 1 
 
 cd $WorkingDir
 
